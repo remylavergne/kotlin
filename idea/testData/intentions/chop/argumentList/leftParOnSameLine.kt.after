@@ -1,10 +1,9 @@
-// SET_TRUE: CALL_PARAMETERS_LPAREN_ON_NEXT_LINE
+// SET_FALSE: CALL_PARAMETERS_LPAREN_ON_NEXT_LINE
 // SET_TRUE: CALL_PARAMETERS_RPAREN_ON_NEXT_LINE
 fun f() {
-    foo(
-        1,
-        "a",
-        2
+    foo(1,
+            "a",
+            2
     )
 }
 
