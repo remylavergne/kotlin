@@ -621,7 +621,7 @@ fun main(args: Array<String>) {
 
         testGroup("compiler/fir/analysis-tests/tests", "compiler/testData") {
             testClass<AbstractFirOldFrontendDiagnosticsTest> {
-                model("diagnostics/tests", excludedPattern = excludedFirTestdataPattern)
+                model("diagnostics/tests", pattern = "^(.*)\\.kts?$", excludedPattern = excludedFirTestdataPattern)
             }
 
             testClass<AbstractFirOldFrontendDiagnosticsTestWithStdlib> {
