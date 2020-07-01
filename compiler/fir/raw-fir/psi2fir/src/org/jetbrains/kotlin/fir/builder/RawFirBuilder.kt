@@ -669,6 +669,7 @@ class RawFirBuilder(
                 source = file.toFirSourceElement()
                 session = baseSession
                 origin = FirDeclarationOrigin.Source
+                val n: String = file.name
                 name = file.name
                 packageFqName = context.packageFqName
                 for (annotationEntry in file.annotationEntries) {
@@ -684,6 +685,25 @@ class RawFirBuilder(
                 }
                 for (declaration in file.declarations) {
                     declarations += declaration.convert<FirDeclaration>()
+                }
+            }
+        }
+
+        override fun visitScript(script: KtScript, data: Unit?): FirElement {
+            context.packageFqName = script.containingKtFile.packageFqName
+            return buildScript {
+                source = script.toFirSourceElement()
+                session = baseSession
+                origin = FirDeclarationOrigin.Source
+                name = script.fqName.shortName()
+                returnTypeRef = implicitUnitType
+                symbol = FirScriptSymbol(name)
+                for (declaration in script.declarations) {
+                    if (declaration is KtDestructuringDeclaration) {
+                        // TODO!
+                    } else {
+                        declarations += declaration.convert<FirDeclaration>()
+                    }
                 }
             }
         }
