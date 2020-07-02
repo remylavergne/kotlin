@@ -407,9 +407,8 @@ object NodeConfigurator : AbstractFieldConfigurator<FirTreeBuilder>(FirTreeBuild
         }
 
         script.configure {
-            parentArg(callableDeclaration, "F", script)
+            parentArg(function, "F", script)
             +symbol("FirScriptSymbol")
-            +fieldList(declaration).withTransform()
             +name
         }
 
