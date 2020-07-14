@@ -23,8 +23,19 @@ class StaticMembersLowering(val context: CommonBackendContext) : DeclarationTran
             }
 
             if (isStatic) {
+                var extractedUnder = declaration
+                var newContainer = declaration.parent
+                while (newContainer is IrDeclaration && newContainer != irClass.file) {
+                    extractedUnder = newContainer
+                    newContainer = newContainer.parent
+                }
+                val insertBefore = irClass.file.declarations.indexOf(extractedUnder)
+                if (insertBefore >= 0) {
+                    irClass.file.declarations.add(insertBefore, declaration)
+                } else {
+                    irClass.file.declarations += declaration
+                }
                 declaration.parent = irClass.file
-                irClass.file.declarations += declaration
                 return listOf()
             }
         }

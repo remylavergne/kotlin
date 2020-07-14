@@ -17,9 +17,12 @@
 package org.jetbrains.kotlin.backend.common
 
 import org.jetbrains.kotlin.ir.IrElement
+import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.IrBody
+import org.jetbrains.kotlin.ir.expressions.IrStatementContainer
 import org.jetbrains.kotlin.ir.util.transformFlat
+import org.jetbrains.kotlin.ir.util.transformSubsetFlat
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
@@ -107,15 +110,8 @@ fun DeclarationContainerLoweringPass.asClassLoweringPass() = object : ClassLower
     }
 }
 
-fun DeclarationContainerLoweringPass.asScriptLoweringPass() = object : ScriptLoweringPass {
-    override fun lower(irScript: IrScript) {
-        this@asScriptLoweringPass.lower(irScript)
-    }
-}
-
 fun DeclarationContainerLoweringPass.runOnFilePostfix(irFile: IrFile) {
     this.asClassLoweringPass().runOnFilePostfix(irFile)
-    this.asScriptLoweringPass().runOnFilePostfix(irFile)
 
     this.lower(irFile as IrDeclarationContainer)
 }
@@ -149,11 +145,8 @@ fun BodyLoweringPass.runOnFilePostfix(irFile: IrFile, withLocalDeclarations: Boo
             }
 
             override fun visitScript(declaration: IrScript, data: IrDeclaration?) {
-                ArrayList(declaration.declarations).forEach { it.accept(this, declaration) }
-                if (withLocalDeclarations) {
-                    declaration.statements.forEach { it.accept(this, null) }
-                }
                 declaration.thisReceiver.accept(this, declaration)
+                ArrayList(declaration.statements).forEach { it.accept(this, declaration) }
             }
 
         }, null)
@@ -224,22 +217,26 @@ fun DeclarationTransformer.runPostfix(withLocalDeclarations: Boolean = false): D
 
                     val visitor = this
 
+                    fun IrDeclaration.replaceInContainer(container: MutableList<in IrDeclaration>, result: List<IrDeclaration>): Boolean {
+                        var index = container.indexOf(this)
+                        if (index == -1) {
+                            index = container.indexOf(declaration)
+                        } else {
+                            container.removeAt(index)
+                            --index
+                        }
+                        return container.addAll(index + 1, result)
+                    }
+
                     fun IrDeclaration.transform() {
 
                         acceptVoid(visitor)
 
                         val result = this@runPostfix.transformFlatRestricted(this)
                         if (result != null) {
-                            (parent as? IrDeclarationContainer)?.let {
-                                var index = it.declarations.indexOf(this)
-                                if (index == -1) {
-                                    index = it.declarations.indexOf(declaration)
-                                } else {
-                                    it.declarations.removeAt(index)
-                                    --index
-                                }
-
-                                it.declarations.addAll(index + 1, result)
+                            when (val parentCopy = parent) {
+                                is IrDeclarationContainer -> replaceInContainer(parentCopy.declarations, result)
+                                is IrStatementContainer -> replaceInContainer(parentCopy.statements, result)
                             }
                         }
                     }
@@ -258,14 +255,9 @@ fun DeclarationTransformer.runPostfix(withLocalDeclarations: Boolean = false): D
                 }
 
                 override fun visitScript(declaration: IrScript) {
-                    ArrayList(declaration.declarations).forEach { it.accept(this, null) }
-                    declaration.declarations.transformFlat(this@runPostfix::transformFlatRestricted)
-
-                    if (withLocalDeclarations) {
-                        declaration.statements.forEach { it.accept(this, null) }
-                    }
-
                     declaration.thisReceiver.accept(this, null)
+                    ArrayList(declaration.statements).forEach { it.accept(this, null) }
+                    declaration.statements.transformSubsetFlat(this@runPostfix::transformFlatRestricted)
                 }
             })
 
