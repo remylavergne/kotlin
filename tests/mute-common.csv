@@ -51,6 +51,7 @@ org.jetbrains.kotlin.idea.debugger.test.AsyncStackTraceTestGenerated.testAsyncLa
 org.jetbrains.kotlin.idea.debugger.test.KotlinSteppingTestGenerated.StepOver.testStepOverInlinedLambdaStdlib, fails after advancing bootstrap KT-37879,,
 org.jetbrains.kotlin.incremental.IncrementalJsKlibCompilerRunnerTestGenerated.ClassHierarchyAffected.testMethodRemoved, full fledged FO in klib required,,
 org.jetbrains.kotlin.idea.quickfix.QuickFixTestGenerated.ConvertToAnonymousObject.testHasConcreateMember2, Unprocessed,,
+org.jetbrains.kotlin.idea.debugger.test.KotlinSteppingTestGenerated.Custom.testFunctionBreakpointInStdlib, Unprocessed,,
 org.jetbrains.uast.test.kotlin.KotlinUastTypesTest.testEa101715, Unprocessed,,
 org.jetbrains.kotlin.idea.quickfix.QuickFixTestGenerated.CreateFromUsage.CreateFunction.Invoke.testLambdaArgument, Unprocessed,,
 org.jetbrains.kotlin.idea.decompiler.navigation.NavigateJavaToLibrarySourceTestGenerated.testClassAndConstuctors, Unprocessed,,
