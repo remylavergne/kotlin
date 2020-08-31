@@ -21,7 +21,6 @@ import org.jetbrains.kotlin.fir.expressions.FirAnnotationCall
 import org.jetbrains.kotlin.fir.expressions.FirBlock
 import org.jetbrains.kotlin.fir.expressions.builder.FirExpressionBuilder
 import org.jetbrains.kotlin.fir.references.FirControlFlowGraphReference
-import org.jetbrains.kotlin.fir.references.impl.FirEmptyControlFlowGraphReference
 import org.jetbrains.kotlin.fir.symbols.impl.FirScriptSymbol
 import org.jetbrains.kotlin.fir.types.FirTypeRef
 import org.jetbrains.kotlin.fir.types.impl.FirImplicitTypeRefImpl

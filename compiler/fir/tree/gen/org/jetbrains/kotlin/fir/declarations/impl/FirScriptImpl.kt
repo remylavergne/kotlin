@@ -16,7 +16,6 @@ import org.jetbrains.kotlin.fir.declarations.FirValueParameter
 import org.jetbrains.kotlin.fir.expressions.FirAnnotationCall
 import org.jetbrains.kotlin.fir.expressions.FirBlock
 import org.jetbrains.kotlin.fir.references.FirControlFlowGraphReference
-import org.jetbrains.kotlin.fir.references.impl.FirEmptyControlFlowGraphReference
 import org.jetbrains.kotlin.fir.symbols.impl.FirScriptSymbol
 import org.jetbrains.kotlin.fir.types.FirTypeRef
 import org.jetbrains.kotlin.fir.types.impl.FirImplicitTypeRefImpl
@@ -43,7 +42,7 @@ internal class FirScriptImpl(
     override val name: Name,
 ) : FirScript() {
     override val attributes: FirDeclarationAttributes = FirDeclarationAttributes()
-    override var controlFlowGraphReference: FirControlFlowGraphReference = FirEmptyControlFlowGraphReference
+    override var controlFlowGraphReference: FirControlFlowGraphReference? = null
     override var typeRef: FirTypeRef = FirImplicitTypeRefImpl(null)
 
     init {
@@ -55,7 +54,7 @@ internal class FirScriptImpl(
         returnTypeRef.accept(visitor, data)
         receiverTypeRef?.accept(visitor, data)
         typeParameters.forEach { it.accept(visitor, data) }
-        controlFlowGraphReference.accept(visitor, data)
+        controlFlowGraphReference?.accept(visitor, data)
         valueParameters.forEach { it.accept(visitor, data) }
         body?.accept(visitor, data)
         typeRef.accept(visitor, data)
@@ -66,7 +65,7 @@ internal class FirScriptImpl(
         transformReturnTypeRef(transformer, data)
         transformReceiverTypeRef(transformer, data)
         transformTypeParameters(transformer, data)
-        transformControlFlowGraphReference(transformer, data)
+        controlFlowGraphReference = controlFlowGraphReference?.transformSingle(transformer, data)
         transformValueParameters(transformer, data)
         transformBody(transformer, data)
         typeRef = typeRef.transformSingle(transformer, data)
@@ -93,11 +92,6 @@ internal class FirScriptImpl(
         return this
     }
 
-    override fun <D> transformControlFlowGraphReference(transformer: FirTransformer<D>, data: D): FirScriptImpl {
-        controlFlowGraphReference = controlFlowGraphReference.transformSingle(transformer, data)
-        return this
-    }
-
     override fun <D> transformValueParameters(transformer: FirTransformer<D>, data: D): FirScriptImpl {
         valueParameters.transformInplace(transformer, data)
         return this
@@ -118,6 +112,10 @@ internal class FirScriptImpl(
 
     override fun replaceReceiverTypeRef(newReceiverTypeRef: FirTypeRef?) {
         receiverTypeRef = newReceiverTypeRef
+    }
+
+    override fun replaceControlFlowGraphReference(newControlFlowGraphReference: FirControlFlowGraphReference?) {
+        controlFlowGraphReference = newControlFlowGraphReference
     }
 
     override fun replaceValueParameters(newValueParameters: List<FirValueParameter>) {

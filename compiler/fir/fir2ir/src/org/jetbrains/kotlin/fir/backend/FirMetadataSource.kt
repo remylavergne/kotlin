@@ -27,6 +27,16 @@ sealed class FirMetadataSource : MetadataSource {
 
     class File(override val fir: FirFile) : FirMetadataSource(), MetadataSource.File
 
+    class Script(
+        val script: FirScript
+    ) : FirMetadataSource {
+        override val session: FirSession
+            get() = script.session
+
+        override val name: Name?
+            get() = script.name
+    }
+
     class Class(override val fir: FirClass<*>) : FirMetadataSource(), MetadataSource.Class
 
     class Function(override val fir: FirFunction<*>) : FirMetadataSource(), MetadataSource.Function
