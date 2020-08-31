@@ -148,6 +148,7 @@ class ClassCodegen private constructor(
                 is IrClass, classInitializer, classDelegatedPropertiesArray -> Unit // see below
                 is IrField -> generateField(declaration)
                 is IrFunction -> generateMethod(declaration, smap, delegatedPropertyTracker)
+                is IrScript -> Unit
                 else -> throw AssertionError("unexpected class member $declaration at codegen")
             }
         }

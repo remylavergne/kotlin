@@ -7,22 +7,17 @@ package org.jetbrains.kotlin.psi2ir.generators
 
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ParameterDescriptor
-import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.descriptors.ScriptDescriptor
 import org.jetbrains.kotlin.ir.assertCast
-import org.jetbrains.kotlin.ir.builders.declarations.IrFunctionBuilder
-import org.jetbrains.kotlin.ir.declarations.*
-import org.jetbrains.kotlin.ir.declarations.lazy.IrLazyFunction
-import org.jetbrains.kotlin.ir.descriptors.WrappedFunctionDescriptorWithContainerSource
-import org.jetbrains.kotlin.ir.descriptors.WrappedSimpleFunctionDescriptor
+import org.jetbrains.kotlin.ir.declarations.IrDeclaration
+import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
+import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.expressions.impl.IrCompositeImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrSetFieldImpl
-import org.jetbrains.kotlin.ir.symbols.impl.IrSimpleFunctionSymbolImpl
 import org.jetbrains.kotlin.ir.util.varargElementType
-import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtDestructuringDeclaration
 import org.jetbrains.kotlin.psi.KtScript
 import org.jetbrains.kotlin.psi.KtScriptInitializer
@@ -62,6 +57,9 @@ class ScriptGenerator(declarationGenerator: DeclarationGenerator) : DeclarationG
             }
 
             irScript.thisReceiver = makeReceiver(descriptor)
+
+            irScript.baseClass = descriptor.typeConstructor.supertypes.single().toIrType()
+            irScript.implicitReceivers = descriptor.implicitReceivers.map(::makeReceiver)
 
             for (d in ktScript.declarations) {
                 when (d) {
@@ -138,6 +136,27 @@ class ScriptGenerator(declarationGenerator: DeclarationGenerator) : DeclarationG
                         .generateSyntheticProperty(ktScript, resultDescriptor, null, generateSyntheticAccessors = true)
                 resultProperty.origin = IrDeclarationOrigin.SCRIPT_RESULT_PROPERTY
                 irScript.statements += resultProperty
+                irScript.resultProperty = resultProperty.symbol
+            }
+
+            irScript.explicitCallParameters = descriptor.unsubstitutedPrimaryConstructor.valueParameters.map { valueParameterDescriptor ->
+                valueParameterDescriptor.toIrValueParameter(startOffset, endOffset, IrDeclarationOrigin.SCRIPT_CALL_PARAMETER)
+            }
+
+            irScript.implicitReceivers = descriptor.implicitReceivers.map { implicitReceiver ->
+                // TODO: probably needs more magic
+                implicitReceiver.thisAsReceiverParameter.toIrValueParameter(
+                    startOffset, endOffset, IrDeclarationOrigin.SCRIPT_IMPLICIT_RECEIVER
+                )
+            }
+
+            irScript.providedProperties = descriptor.scriptProvidedProperties.map { providedProperty ->
+                // TODO: initializer
+                // TODO: do not keet direct links
+                val irProperty = PropertyGenerator(declarationGenerator).generateSyntheticProperty(ktScript, providedProperty, null)
+                irProperty.origin = IrDeclarationOrigin.SCRIPT_PROVIDED_PROPERTY
+                irScript.statements += irProperty
+                irProperty.symbol
             }
         }
     }

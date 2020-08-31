@@ -68,7 +68,7 @@ interface IrClassifierSymbol : IrSymbol, TypeConstructorMarker {
 
 interface IrClassSymbol : IrClassifierSymbol, IrBindableSymbol<ClassDescriptor, IrClass>
 
-interface IrScriptSymbol : IrSymbol, IrBindableSymbol<ScriptDescriptor, IrScript>
+interface IrScriptSymbol : IrClassifierSymbol, IrBindableSymbol<ScriptDescriptor, IrScript>
 
 interface IrTypeParameterSymbol : IrClassifierSymbol, IrBindableSymbol<TypeParameterDescriptor, IrTypeParameter>, TypeParameterMarker
 

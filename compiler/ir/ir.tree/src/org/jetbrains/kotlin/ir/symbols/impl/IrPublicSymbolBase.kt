@@ -62,6 +62,11 @@ class IrClassPublicSymbolImpl(descriptor: ClassDescriptor, sig: IdSignature) :
     IrBindablePublicSymbolBase<ClassDescriptor, IrClass>(descriptor, sig),
     IrClassSymbol
 
+class IrScriptPublicSymbolImpl(descriptor: ScriptDescriptor, sig: IdSignature) :
+    IrBindablePublicSymbolBase<ScriptDescriptor, IrScript>(descriptor, sig),
+    IrScriptSymbol {
+}
+
 class IrEnumEntryPublicSymbolImpl(descriptor: ClassDescriptor, sig: IdSignature) :
     IrBindablePublicSymbolBase<ClassDescriptor, IrEnumEntry>(descriptor, sig),
     IrEnumEntrySymbol
