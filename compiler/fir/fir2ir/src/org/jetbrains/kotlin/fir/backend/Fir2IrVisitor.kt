@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.fir.*
 import org.jetbrains.kotlin.fir.backend.generators.AnnotationGenerator
 import org.jetbrains.kotlin.fir.backend.generators.ClassMemberGenerator
 import org.jetbrains.kotlin.fir.backend.generators.OperatorExpressionGenerator
+import org.jetbrains.kotlin.fir.backend.generators.ScriptStatementGenerator
 import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.declarations.builder.buildProperty
 import org.jetbrains.kotlin.fir.declarations.impl.FirDeclarationStatusImpl
@@ -57,6 +58,8 @@ class Fir2IrVisitor(
     private val annotationGenerator = AnnotationGenerator(this)
 
     private val memberGenerator = ClassMemberGenerator(components, this, conversionScope)
+
+    private val scriptGenerator = ScriptStatementGenerator(components, this, conversionScope, memberGenerator)
 
     private val operatorGenerator = OperatorExpressionGenerator(components, this, conversionScope)
 
@@ -163,6 +166,13 @@ class Fir2IrVisitor(
             conversionScope.withContainingFirClass(regularClass) {
                 memberGenerator.convertClassContent(irClass, regularClass)
             }
+        }
+    }
+
+    override fun visitScript(script: FirScript, data: Any?): IrElement {
+        val irScript = declarationStorage.getIrScript(script)!!
+        return conversionScope.withParent(irScript) {
+            scriptGenerator.convertScriptContent(irScript, script)
         }
     }
 

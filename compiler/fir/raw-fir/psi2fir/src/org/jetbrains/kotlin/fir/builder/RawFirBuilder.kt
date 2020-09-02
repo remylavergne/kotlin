@@ -702,6 +702,8 @@ class RawFirBuilder(
                 returnTypeRef = implicitUnitType
                 symbol = FirScriptSymbol(callableIdForName(name))
                 body = script.blockExpression.toFirBlock()
+                // TODO: from script definition
+                valueParameters = listOf()
                 context.localBits.removeLast()
                 context.firFunctionTargets.removeLast()
             }.build().also {

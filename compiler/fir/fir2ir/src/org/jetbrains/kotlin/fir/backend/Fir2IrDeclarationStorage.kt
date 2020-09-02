@@ -31,15 +31,13 @@ import org.jetbrains.kotlin.fir.render
 import org.jetbrains.kotlin.fir.resolve.firProvider
 import org.jetbrains.kotlin.fir.resolve.firSymbolProvider
 import org.jetbrains.kotlin.fir.resolve.isKFunctionInvoke
-import org.jetbrains.kotlin.fir.symbols.Fir2IrConstructorSymbol
-import org.jetbrains.kotlin.fir.symbols.Fir2IrPropertySymbol
-import org.jetbrains.kotlin.fir.symbols.Fir2IrSimpleFunctionSymbol
-import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
+import org.jetbrains.kotlin.fir.symbols.*
 import org.jetbrains.kotlin.fir.symbols.impl.*
 import org.jetbrains.kotlin.fir.types.*
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.declarations.impl.IrScriptImpl
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.descriptors.*
 import org.jetbrains.kotlin.ir.expressions.IrExpression
@@ -49,6 +47,7 @@ import org.jetbrains.kotlin.ir.symbols.*
 import org.jetbrains.kotlin.ir.types.IrErrorType
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
@@ -74,6 +73,8 @@ class Fir2IrDeclarationStorage(
     private val builtInsFragmentCache = mutableMapOf<FqName, IrExternalPackageFragment>()
 
     private val fileCache = mutableMapOf<FirFile, IrFile>()
+
+    private val scriptCache = mutableMapOf<FirScript, IrScript>()
 
     private val functionCache = mutableMapOf<FirFunction<*>, IrSimpleFunction>()
 
@@ -152,6 +153,52 @@ class Fir2IrDeclarationStorage(
     fun getIrFile(firFile: FirFile): IrFile {
         return fileCache[firFile]!!
     }
+
+    fun registerIrScript(
+        script: FirScript,
+        parent: IrDeclarationParent? = null,
+        origin: IrDeclarationOrigin = IrDeclarationOrigin.DEFINED
+    ): IrScript {
+        val signature = signatureComposer.composeSignature(script)
+        val irScript = script.convertWithOffsets { startOffset, endOffset ->
+            declareIrScript(signature) { symbol ->
+                IrScriptImpl(
+                    symbol,
+                    script.name,
+                    startOffset,
+                    endOffset,
+                    origin
+                )
+            }
+        }
+        if (parent != null) {
+            irScript.parent = parent
+        }
+        irScript.explicitCallParameters = script.valueParameters.mapIndexed { idx, parameter -> createIrParameter(parameter, idx) }
+        scriptCache[script] = irScript
+        return irScript
+    }
+
+    fun processScriptHeader(script: FirScript, irScript: IrScript = getIrScript(script)!!): IrScript {
+        symbolTable.enterScope(irScript)
+        irScript.thisReceiver = irScript.declareThisReceiverParameter(
+            symbolTable,
+            thisType = IrSimpleTypeImpl(irScript.symbol, false, emptyList(), emptyList()),
+            thisOrigin = IrDeclarationOrigin.INSTANCE_RECEIVER
+        )
+        symbolTable.leaveScope(irScript)
+        return irScript
+    }
+
+    private fun declareIrScript(signature: IdSignature?, factory: (IrScriptSymbol) -> IrScript): IrScript {
+        if (signature == null) {
+            val descriptor = WrappedScriptDescriptor()
+            return symbolTable.declareScript(descriptor, factory).apply { descriptor.bind(this) }
+        }
+        return symbolTable.declareScript(signature, { Fir2IrScriptSymbol(signature) }, factory)
+    }
+
+    fun getIrScript(script: FirScript): IrScript? = scriptCache[script]
 
     fun enterScope(declaration: IrDeclaration) {
         symbolTable.enterScope(declaration)

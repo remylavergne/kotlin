@@ -42,6 +42,7 @@ abstract class Fir2IrBindableSymbol<out D : DeclarationDescriptor, B : IrSymbolO
         val result = when (val owner = owner) {
             is IrEnumEntry -> WrappedEnumEntryDescriptor().apply { bind(owner) }
             is IrClass -> WrappedClassDescriptor().apply { bind(owner) }
+            is IrScript -> WrappedScriptDescriptor().apply { bind(owner) }
             is IrConstructor -> WrappedClassConstructorDescriptor().apply { bind(owner) }
             is IrSimpleFunction -> when {
                 containerSource != null ->
