@@ -40,6 +40,7 @@ internal class FirScriptImpl(
     override var body: FirBlock?,
     override val symbol: FirScriptSymbol,
     override val name: Name,
+    override var baseClass: FirTypeRef?,
 ) : FirScript() {
     override val attributes: FirDeclarationAttributes = FirDeclarationAttributes()
     override var controlFlowGraphReference: FirControlFlowGraphReference? = null
@@ -58,6 +59,7 @@ internal class FirScriptImpl(
         valueParameters.forEach { it.accept(visitor, data) }
         body?.accept(visitor, data)
         typeRef.accept(visitor, data)
+        baseClass?.accept(visitor, data)
     }
 
     override fun <D> transformChildren(transformer: FirTransformer<D>, data: D): FirScriptImpl {
@@ -69,6 +71,7 @@ internal class FirScriptImpl(
         transformValueParameters(transformer, data)
         transformBody(transformer, data)
         typeRef = typeRef.transformSingle(transformer, data)
+        baseClass = baseClass?.transformSingle(transformer, data)
         return this
     }
 

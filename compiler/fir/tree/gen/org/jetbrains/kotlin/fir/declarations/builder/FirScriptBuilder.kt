@@ -46,6 +46,7 @@ class FirScriptBuilder : FirAnnotationContainerBuilder, FirExpressionBuilder {
     var body: FirBlock? = null
     lateinit var symbol: FirScriptSymbol
     lateinit var name: Name
+    var baseClass: FirTypeRef? = null
 
     override fun build(): FirScript {
         return FirScriptImpl(
@@ -61,6 +62,7 @@ class FirScriptBuilder : FirAnnotationContainerBuilder, FirExpressionBuilder {
             body,
             symbol,
             name,
+            baseClass,
         )
     }
 

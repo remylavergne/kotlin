@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.fir.backend.generators.DataClassMembersGenerator
 import org.jetbrains.kotlin.fir.backend.generators.FakeOverrideGenerator
 import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.descriptors.FirModuleDescriptor
+import org.jetbrains.kotlin.fir.expressions.FirStatement
 import org.jetbrains.kotlin.fir.psi
 import org.jetbrains.kotlin.fir.resolve.ScopeSession
 import org.jetbrains.kotlin.fir.signaturer.FirMangler
@@ -174,9 +175,6 @@ class Fir2IrConverter(
                 is FirDeclaration -> {
                     val irDeclaration = processMemberDeclaration(scriptStatement, null, irScript) ?: continue@loop
                     irScript.statements += irDeclaration
-                }
-                else -> {
-                    error("Unexpected script member: ${scriptStatement::class}")
                 }
             }
         }

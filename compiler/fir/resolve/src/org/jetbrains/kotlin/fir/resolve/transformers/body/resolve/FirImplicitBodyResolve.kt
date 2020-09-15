@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.declarations.synthetic.FirSyntheticProperty
 import org.jetbrains.kotlin.fir.diagnostics.ConeSimpleDiagnostic
 import org.jetbrains.kotlin.fir.diagnostics.DiagnosticKind
+import org.jetbrains.kotlin.fir.expressions.FirStatement
 import org.jetbrains.kotlin.fir.render
 import org.jetbrains.kotlin.fir.resolve.ResolutionMode
 import org.jetbrains.kotlin.fir.resolve.ScopeSession
@@ -160,6 +161,11 @@ private open class FirImplicitAwareBodyResolveTransformer(
         implicitBodyResolveComputationSession.storeResult(symbol, result.single)
 
         return result
+    }
+
+    override fun transformScript(script: FirScript, data: ResolutionMode): CompositeTransformResult<FirStatement> {
+        script.body?.transformStatements(this, data)
+        return super.transformScript(script, data)
     }
 }
 

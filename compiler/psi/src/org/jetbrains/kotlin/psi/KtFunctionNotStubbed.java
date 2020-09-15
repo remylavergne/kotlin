@@ -84,6 +84,7 @@ public abstract class KtFunctionNotStubbed extends KtTypeParameterListOwnerNotSt
     @Override
     public boolean isLocal() {
         PsiElement parent = getParent();
-        return !(parent instanceof KtFile || parent instanceof KtClassBody);
+        return !(parent instanceof KtFile || parent instanceof KtClassBody || parent instanceof KtScript
+                 || (parent instanceof KtBlockExpression && parent.getParent() instanceof KtScript));
     }
 }

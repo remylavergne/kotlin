@@ -44,9 +44,6 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrSyntheticBodyKind
 import org.jetbrains.kotlin.ir.expressions.impl.IrErrorExpressionImpl
 import org.jetbrains.kotlin.ir.symbols.*
-import org.jetbrains.kotlin.ir.types.IrErrorType
-import org.jetbrains.kotlin.ir.types.IrSimpleType
-import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.ClassId
@@ -54,6 +51,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 import org.jetbrains.kotlin.descriptors.DescriptorVisibility
+import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.fir.resolve.inference.isSuspendFunctionType
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
@@ -174,7 +172,9 @@ class Fir2IrDeclarationStorage(
         if (parent != null) {
             irScript.parent = parent
         }
-        irScript.explicitCallParameters = script.valueParameters.mapIndexed { idx, parameter -> createIrParameter(parameter, idx) }
+        irScript.baseClass = script.baseClass?.toIrType() ?: irBuiltIns.anyNType
+//        irScript.explicitCallParameters = listOf(createSyntheticIrParameter(Name.identifier("args"), irBuiltIns.arrayClass.typeWith(irBuiltIns.stringType)))
+                // script.valueParameters.mapIndexed { idx, parameter -> createIrParameter(parameter, idx) }
         scriptCache[script] = irScript
         return irScript
     }
@@ -884,6 +884,45 @@ class Fir2IrDeclarationStorage(
         localStorage.putParameter(valueParameter, irParameter)
         return irParameter
     }
+
+    internal fun createSyntheticIrParameter(
+        name: Name,
+        type: IrType,
+        index: Int = -1,
+        useStubForDefaultValueStub: Boolean = true,
+        typeContext: ConversionTypeContext = ConversionTypeContext.DEFAULT
+    ): IrValueParameter {
+        val startOffset = SYNTHETIC_OFFSET
+        val endOffset = SYNTHETIC_OFFSET
+        val descriptor = WrappedValueParameterDescriptor()
+        val origin = IrDeclarationOrigin.DEFINED
+        val irParameter =
+            symbolTable.declareValueParameter(
+                startOffset, endOffset, origin, descriptor, type
+            ) { symbol ->
+                irFactory.createValueParameter(
+                    startOffset, endOffset, origin, symbol,
+                    name, index, type,
+                    null,
+                    false, false
+                ).apply {
+                    descriptor.bind(this)
+//                    if (valueParameter.defaultValue.let {
+//                            it != null && (useStubForDefaultValueStub || it !is FirExpressionStub)
+//                        }
+//                    ) {
+//                        this.defaultValue = factory.createExpressionBody(
+//                            IrErrorExpressionImpl(
+//                                UNDEFINED_OFFSET, UNDEFINED_OFFSET, type,
+//                                "Stub expression for default value of ${valueParameter.name}"
+//                            )
+//                        )
+//                    }
+                }
+            }
+        return irParameter
+    }
+
 
     private var lastTemporaryIndex: Int = 0
     private fun nextTemporaryIndex(): Int = lastTemporaryIndex++

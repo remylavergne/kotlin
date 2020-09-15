@@ -37,6 +37,7 @@ abstract class FirScript : FirAnnotatedDeclaration, FirFunction<FirScript>, FirE
     abstract override val typeRef: FirTypeRef
     abstract override val symbol: FirScriptSymbol
     abstract val name: Name
+    abstract val baseClass: FirTypeRef?
 
     override fun <R, D> accept(visitor: FirVisitor<R, D>, data: D): R = visitor.visitScript(this, data)
 

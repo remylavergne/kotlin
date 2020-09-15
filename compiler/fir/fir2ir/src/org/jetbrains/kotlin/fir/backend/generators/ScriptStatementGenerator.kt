@@ -5,11 +5,12 @@
 
 package org.jetbrains.kotlin.fir.backend.generators
 
-import org.jetbrains.kotlin.fir.Visibilities
+import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.fir.backend.Fir2IrComponents
 import org.jetbrains.kotlin.fir.backend.Fir2IrConversionScope
 import org.jetbrains.kotlin.fir.backend.Fir2IrVisitor
 import org.jetbrains.kotlin.fir.declarations.*
+import org.jetbrains.kotlin.ir.declarations.IrDeclaration
 import org.jetbrains.kotlin.ir.declarations.IrScript
 
 internal class ScriptStatementGenerator(
@@ -23,12 +24,12 @@ internal class ScriptStatementGenerator(
 
     fun convertScriptContent(irScript: IrScript, script: FirScript) {
         declarationStorage.enterScope(irScript)
-        fakeOverrideGenerator.bindOverriddenSymbols(irScript.declarations)
+        fakeOverrideGenerator.bindOverriddenSymbols(irScript.statements.filterIsInstance<IrDeclaration>())
         script.body?.statements?.forEach { statement ->
             when {
                 statement is FirTypeAlias -> {
                 }
-                statement is FirRegularClass && statement.visibility == Visibilities.Local -> {
+                statement is FirRegularClass -> {
                     val irNestedClass = classifierStorage.getCachedIrClass(statement)!!
                     irNestedClass.parent = irScript
                     conversionScope.withParent(irNestedClass) {

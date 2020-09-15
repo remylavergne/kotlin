@@ -33,12 +33,10 @@ import org.jetbrains.kotlin.fir.symbols.CallableId
 import org.jetbrains.kotlin.fir.symbols.impl.*
 import org.jetbrains.kotlin.fir.types.*
 import org.jetbrains.kotlin.fir.types.builder.*
-import org.jetbrains.kotlin.fir.types.impl.ConeClassLikeTypeImpl
-import org.jetbrains.kotlin.fir.types.impl.FirQualifierPartImpl
-import org.jetbrains.kotlin.fir.types.impl.FirTypeArgumentListImpl
-import org.jetbrains.kotlin.fir.types.impl.FirTypePlaceholderProjection
+import org.jetbrains.kotlin.fir.types.impl.*
 import org.jetbrains.kotlin.lexer.KtTokens.*
 import org.jetbrains.kotlin.name.ClassId
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.*
@@ -694,6 +692,8 @@ class RawFirBuilder(
             context.packageFqName = script.containingKtFile.packageFqName
             context.firFunctionTargets += target
             context.localBits.add(true)
+            // val scriptCompilationConfiguration = script.containingKtFile.findScriptCompilationConfiguration()
+
             return FirScriptBuilder().apply {
                 source = script.toFirSourceElement()
                 session = baseSession
@@ -702,8 +702,15 @@ class RawFirBuilder(
                 returnTypeRef = implicitUnitType
                 symbol = FirScriptSymbol(callableIdForName(name))
                 body = script.blockExpression.toFirBlock()
-                // TODO: from script definition
-                valueParameters = listOf()
+                baseClass = buildResolvedTypeRef {
+                    type = ConeClassLikeTypeImpl(
+                        ConeClassLikeLookupTagImpl(
+                            ClassId(FqName("kotlin.script.templates.standard"), Name.identifier("ScriptTemplateWithArgs"))
+                        ),
+                        emptyArray(),
+                        false
+                    )
+                }
                 context.localBits.removeLast()
                 context.firFunctionTargets.removeLast()
             }.build().also {

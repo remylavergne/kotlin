@@ -84,22 +84,25 @@ private class ScriptToClassLowering(val context: JvmBackendContext) : FileLoweri
             irScriptClass.addConstructor {
                 isPrimary = true
             }.also { irConstructor ->
-                irScript.explicitCallParameters.forEach { scriptCallParameter ->
-                    val callParameter = irConstructor.addValueParameter {
-                        updateFrom(scriptCallParameter)
-                        name = scriptCallParameter.name
-                    }
-                    irScriptClass.addSimplePropertyFrom(
-                        callParameter,
-                        IrExpressionBodyImpl(
-                            IrGetValueImpl(
-                                callParameter.startOffset, callParameter.endOffset,
-                                callParameter.type,
-                                callParameter.symbol,
-                                IrStatementOrigin.INITIALIZE_PROPERTY_FROM_PARAMETER
+                (irScript.baseClass as? IrSimpleType)?.let {
+                    val cl = it.classifier.owner as IrClass
+                    cl.primaryConstructor!!.valueParameters.forEach { scriptCallParameter ->
+                        val callParameter = irConstructor.addValueParameter {
+                            updateFrom(scriptCallParameter)
+                            name = scriptCallParameter.name
+                        }
+                        irScriptClass.addSimplePropertyFrom(
+                            callParameter,
+                            IrExpressionBodyImpl(
+                                IrGetValueImpl(
+                                    callParameter.startOffset, callParameter.endOffset,
+                                    callParameter.type,
+                                    callParameter.symbol,
+                                    IrStatementOrigin.INITIALIZE_PROPERTY_FROM_PARAMETER
+                                )
                             )
                         )
-                    )
+                    }
                 }
 
                 irConstructor.body = context.createIrBuilder(irConstructor.symbol).irBlockBody {
