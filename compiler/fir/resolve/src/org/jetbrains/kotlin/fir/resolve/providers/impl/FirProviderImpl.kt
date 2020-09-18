@@ -113,6 +113,15 @@ class FirProviderImpl(val session: FirSession, val kotlinScopeProvider: KotlinSc
             regularClass.acceptChildren(this, data)
         }
 
+        override fun visitScript(script: FirScript, data: Pair<State, FirFile>) {
+            script.acceptChildren(this, data)
+            script.body?.statements?.forEach {
+                if (it is FirDeclaration) {
+                    it.accept(this, data)
+                }
+            }
+        }
+
         override fun visitTypeAlias(typeAlias: FirTypeAlias, data: Pair<State, FirFile>) {
             val classId = typeAlias.symbol.classId
             val (state, file) = data

@@ -100,7 +100,7 @@ class FirStatusResolveTransformer(
         // TODO: check if this is a correct strategy. The potential problem is that we are transforming script inner classes twice with the FirStatusResolveTransformer
         script.body?.statements?.forEach {
             if (it is FirDeclaration) {
-                transformDeclaration(it, data)
+                it.accept(this, data)
             }
         }
         return super.transformScript(script, data)
