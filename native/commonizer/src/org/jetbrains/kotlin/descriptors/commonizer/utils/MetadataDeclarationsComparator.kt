@@ -152,7 +152,7 @@ class MetadataDeclarationsComparator(private val config: Config = Config.Default
             entityListA = classListA,
             entityListB = classListB,
             entityKind = "Class",
-            groupingKeySelector = KmClass::name,
+            groupingKeySelector = { _, clazz -> clazz.name },
             entitiesComparator = ::compareClasses
         )
     }
@@ -167,7 +167,7 @@ class MetadataDeclarationsComparator(private val config: Config = Config.Default
             entityListA = typeAliasListA,
             entityListB = typeAliasListB,
             entityKind = "TypeAlias",
-            groupingKeySelector = KmTypeAlias::name,
+            groupingKeySelector = { _, typeAlias -> typeAlias.name },
             entitiesComparator = ::compareTypeAliases
         )
     }
@@ -182,7 +182,7 @@ class MetadataDeclarationsComparator(private val config: Config = Config.Default
             entityListA = propertyListA,
             entityListB = propertyListB,
             entityKind = "Property",
-            groupingKeySelector = KmProperty::name,
+            groupingKeySelector = { _, property -> property.name },
             entitiesComparator = ::compareProperties
         )
     }
@@ -197,7 +197,7 @@ class MetadataDeclarationsComparator(private val config: Config = Config.Default
             entityListA = functionListA,
             entityListB = functionListB,
             entityKind = "Function",
-            groupingKeySelector = KmFunction::mangle,
+            groupingKeySelector = { _, function -> function.mangle() },
             entitiesComparator = ::compareFunctions
         )
     }
@@ -212,7 +212,22 @@ class MetadataDeclarationsComparator(private val config: Config = Config.Default
             entityListA = constructorListA,
             entityListB = constructorListB,
             entityKind = "Constructor",
-            groupingKeySelector = KmConstructor::mangle,
+            groupingKeySelector = { _, constructor -> constructor.mangle() },
+            entitiesComparator = ::compareConstructors
+        )
+    }
+
+    private fun compareValueParameterLists(
+        containerContext: Context,
+        valueParametersA: List<KmValueParameter>,
+        valueParametersB: List<KmValueParameter>
+    ) {
+        compareUniqueEntityLists(
+            containerContext = containerContext,
+            entityListA = valueParametersA,
+            entityListB = valueParametersA,
+            entityKind = "Constructor",
+            groupingKeySelector = { index, _ -> index.toString() },
             entitiesComparator = ::compareConstructors
         )
     }
@@ -225,8 +240,8 @@ class MetadataDeclarationsComparator(private val config: Config = Config.Default
         compareFlags(classContext, classA.flags, classB.flags, CLASS_FLAGS)
         compareAnnotationLists(classContext, classA.annotations, classB.annotations)
 
-        // type parameters
-        // supertypes
+        // TODO: type parameters
+        // TODO: supertypes
 
         compareConstructorLists(classContext, classA.constructors, classB.constructors)
         compareTypeAliasLists(classContext, classA.typeAliases, classB.typeAliases)
@@ -240,10 +255,10 @@ class MetadataDeclarationsComparator(private val config: Config = Config.Default
 
         compareUniqueEntityLists(
             containerContext = classContext,
-            classA.klibEnumEntries,
-            classB.klibEnumEntries,
-            "KlibEnumEntry",
-            KlibEnumEntry::name
+            entityListA = classA.klibEnumEntries,
+            entityListB = classB.klibEnumEntries,
+            entityKind = "KlibEnumEntry",
+            groupingKeySelector = { _, enumEntry -> enumEntry.name }
         ) { context: Context, entryA: KlibEnumEntry, entryB: KlibEnumEntry ->
             compareAnnotationLists(context, entryA.annotations, entryB.annotations)
             compareNullableFields(context, entryA.ordinal, entryB.ordinal, "Ordinal")
@@ -306,7 +321,16 @@ class MetadataDeclarationsComparator(private val config: Config = Config.Default
         compareFlags(constructorContext, constructorA.flags, constructorB.flags, CONSTRUCTOR_FLAGS)
         compareAnnotationLists(constructorContext, constructorA.annotations, constructorB.annotations)
 
+        constructorA.valueParameters
+
         // TODO: value parameters
+    }
+
+    private fun compareValueParameters(
+        containerContext: Context,
+        valueParametr
+    ) {
+
     }
 
     private fun <E : Any> compareFields(
@@ -381,7 +405,7 @@ class MetadataDeclarationsComparator(private val config: Config = Config.Default
         entityListA: List<E>,
         entityListB: List<E>,
         entityKind: String,
-        groupingKeySelector: (E) -> String,
+        groupingKeySelector: (index: Int, E) -> String,
         entitiesComparator: (Context, E, E) -> Unit
     ) {
         compareRepetitiveEntityLists(
@@ -404,13 +428,15 @@ class MetadataDeclarationsComparator(private val config: Config = Config.Default
     private fun <E : Any> compareRepetitiveEntityLists(
         entityListA: List<E>,
         entityListB: List<E>,
-        groupingKeySelector: (E) -> String,
+        groupingKeySelector: (index: Int, E) -> String,
         groupedEntityListsComparator: (entityKey: String, List<E>, List<E>) -> Unit
     ) {
         if (entityListA.isEmpty() && entityListB.isEmpty())
             return
 
-        val groupedEntitiesA: Map<String, List<E>> = entityListA.groupBy(groupingKeySelector)
+        entityListA.groupBy {  }
+
+        val groupedEntitiesA: Map<String, List<E>> = entityListA.groupBy { groupingKeySelector() }
         val groupedEntitiesB: Map<String, List<E>> = entityListB.groupBy(groupingKeySelector)
 
         val entityKeys = groupedEntitiesA.keys union groupedEntitiesB.keys
