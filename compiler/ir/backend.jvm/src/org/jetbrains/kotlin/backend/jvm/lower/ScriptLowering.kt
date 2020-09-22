@@ -84,25 +84,34 @@ private class ScriptToClassLowering(val context: JvmBackendContext) : FileLoweri
             irScriptClass.addConstructor {
                 isPrimary = true
             }.also { irConstructor ->
-                (irScript.baseClass as? IrSimpleType)?.let {
-                    val cl = it.classifier.owner as IrClass
-                    cl.primaryConstructor!!.valueParameters.forEach { scriptCallParameter ->
-                        val callParameter = irConstructor.addValueParameter {
-                            updateFrom(scriptCallParameter)
-                            name = scriptCallParameter.name
+                val ctorParameters =
+                    if (irScript.explicitCallParameters.isEmpty()) {
+                        (irScript.baseClass as? IrSimpleType)?.let {
+                            val cl = it.classifier.owner as IrClass
+                            cl.primaryConstructor!!.valueParameters
                         }
-                        irScriptClass.addSimplePropertyFrom(
-                            callParameter,
-                            IrExpressionBodyImpl(
-                                IrGetValueImpl(
-                                    callParameter.startOffset, callParameter.endOffset,
-                                    callParameter.type,
-                                    callParameter.symbol,
-                                    IrStatementOrigin.INITIALIZE_PROPERTY_FROM_PARAMETER
-                                )
+                    } else {
+                        irScript.explicitCallParameters
+                    }
+                ctorParameters?.forEach { callParameter ->
+//                    val callParameter =
+//                        irConstructor.addValueParameter {
+//                        updateFrom(scriptCallParameter)
+//                        name = scriptCallParameter.name
+//                    }
+                    callParameter.parent = irConstructor
+                    irConstructor.valueParameters += callParameter
+                    irScriptClass.addSimplePropertyFrom(
+                        callParameter,
+                        IrExpressionBodyImpl(
+                            IrGetValueImpl(
+                                callParameter.startOffset, callParameter.endOffset,
+                                callParameter.type,
+                                callParameter.symbol,
+                                IrStatementOrigin.INITIALIZE_PROPERTY_FROM_PARAMETER
                             )
                         )
-                    }
+                    )
                 }
 
                 irConstructor.body = context.createIrBuilder(irConstructor.symbol).irBlockBody {
@@ -138,6 +147,7 @@ private class ScriptToClassLowering(val context: JvmBackendContext) : FileLoweri
                 }
             }
             irScriptClass.annotations += irFile.annotations
+            irScriptClass.dump()
             irScriptClass.metadata = irFile.metadata
         }
     }
@@ -291,10 +301,33 @@ private class ScriptToClassTransformer(
         transformChildren(this@ScriptToClassTransformer, null)
     }
 
-    override fun visitField(declaration: IrField): IrField = declaration.apply {
-        transformParent()
-        transformAnnotations()
-        transformChildren(this@ScriptToClassTransformer, null)
+    override fun visitField(declaration: IrField): IrField {
+        val type = declaration.type.remapType()
+        val symbol = symbolRemapper.getDeclaredField(declaration.symbol)
+        val remappedDeclaration =
+            if (type == declaration.type && symbol == declaration.symbol) {
+                declaration
+            } else {
+                IrFieldImpl(
+                    declaration.startOffset, declaration.endOffset,
+                    declaration.origin,
+                    symbol,
+                    declaration.name,
+                    type,
+                    declaration.visibility,
+                    declaration.isFinal,
+                    declaration.isExternal,
+                    declaration.isStatic
+                ).apply {
+                    parent = declaration.parent
+                    initializer = declaration.initializer
+                }
+            }
+        return remappedDeclaration.apply {
+            transformParent()
+            transformAnnotations()
+            transformChildren(this@ScriptToClassTransformer, null)
+        }
     }
 
     override fun visitLocalDelegatedProperty(declaration: IrLocalDelegatedProperty): IrLocalDelegatedProperty = declaration.apply {

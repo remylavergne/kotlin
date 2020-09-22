@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.fir.backend.generators
 
-import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.fir.backend.Fir2IrComponents
 import org.jetbrains.kotlin.fir.backend.Fir2IrConversionScope
 import org.jetbrains.kotlin.fir.backend.Fir2IrVisitor
@@ -24,6 +23,9 @@ internal class ScriptStatementGenerator(
 
     fun convertScriptContent(irScript: IrScript, script: FirScript) {
         declarationStorage.enterScope(irScript)
+        irScript.explicitCallParameters = script.valueParameters.mapIndexed { index, firValueParameter ->
+            declarationStorage.createIrParameter(firValueParameter, index)
+        }
         fakeOverrideGenerator.bindOverriddenSymbols(irScript.statements.filterIsInstance<IrDeclaration>())
         script.body?.statements?.forEach { statement ->
             when {

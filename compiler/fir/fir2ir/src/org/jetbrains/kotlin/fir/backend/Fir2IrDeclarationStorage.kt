@@ -206,7 +206,8 @@ class Fir2IrDeclarationStorage(
             declaration is IrConstructor ||
             declaration is IrAnonymousInitializer ||
             declaration is IrProperty ||
-            declaration is IrEnumEntry
+            declaration is IrEnumEntry ||
+            declaration is IrScript
         ) {
             localStorage.enterCallable()
         }
@@ -217,7 +218,8 @@ class Fir2IrDeclarationStorage(
             declaration is IrConstructor ||
             declaration is IrAnonymousInitializer ||
             declaration is IrProperty ||
-            declaration is IrEnumEntry
+            declaration is IrEnumEntry ||
+            declaration is IrScript
         ) {
             localStorage.leaveCallable()
         }
@@ -629,7 +631,9 @@ class Fir2IrDeclarationStorage(
                 enterScope(this)
                 bindAndDeclareParameters(
                     propertyAccessor, irParent,
-                    thisReceiverOwner, isStatic = irParent !is IrClass, parentPropertyReceiverType = property.receiverTypeRef
+                    thisReceiverOwner,
+                    isStatic = irParent !is IrClass && irParent !is IrScript,
+                    parentPropertyReceiverType = property.receiverTypeRef
                 )
                 leaveScope(this)
                 if (irParent != null) {
@@ -663,7 +667,7 @@ class Fir2IrDeclarationStorage(
                 name, inferredType,
                 visibility, isFinal = isFinal,
                 isExternal = property.isExternal,
-                isStatic = property.isStatic || parent !is IrClass,
+                isStatic = property.isStatic || (parent !is IrClass && parent !is IrScript),
             ).also {
                 it.correspondingPropertySymbol = this@createBackingField.symbol
             }.apply {

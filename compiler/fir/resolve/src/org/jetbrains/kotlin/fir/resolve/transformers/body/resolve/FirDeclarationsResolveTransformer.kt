@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.fir.*
 import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.declarations.builder.buildValueParameter
+import org.jetbrains.kotlin.fir.declarations.builder.buildValueParameterCopy
 import org.jetbrains.kotlin.fir.declarations.impl.FirDefaultPropertyAccessor
 import org.jetbrains.kotlin.fir.declarations.synthetic.FirSyntheticProperty
 import org.jetbrains.kotlin.fir.diagnostics.ConeSimpleDiagnostic
@@ -633,6 +634,18 @@ open class FirDeclarationsResolveTransformer(transformer: FirBodyResolveTransfor
         val returnTypeRef = script.returnTypeRef
         if ((returnTypeRef !is FirImplicitTypeRef) && implicitTypeOnly) {
             return script.compose()
+        }
+
+        script.baseClass?.firClassLike(session)?.let {
+            if (it is FirRegularClass) {
+                it.getPrimaryConstructorIfAny()?.valueParameters?.let {
+                    script.replaceValueParameters(it.map { valueParameter ->
+                        buildValueParameterCopy(valueParameter) {
+                            this.symbol = FirVariableSymbol(this.name)
+                        }
+                    })
+                }
+            }
         }
 
         script.body?.statements?.forEach { statement ->

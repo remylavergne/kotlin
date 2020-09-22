@@ -140,10 +140,10 @@ class ScriptGenerator(declarationGenerator: DeclarationGenerator) : DeclarationG
                 irScript.statements += resultProperty
                 irScript.resultProperty = resultProperty.symbol
             }
-            irScript.baseClass = context.symbolTable.referenceClass(descriptor.getSuperClassOrAny()).owner.defaultType
-//            irScript.explicitCallParameters = descriptor.unsubstitutedPrimaryConstructor.valueParameters.map { valueParameterDescriptor ->
-//                valueParameterDescriptor.toIrValueParameter(startOffset, endOffset, IrDeclarationOrigin.SCRIPT_CALL_PARAMETER)
-//            }
+//            irScript.baseClass = context.symbolTable.referenceClass(descriptor.getSuperClassOrAny()).owner.defaultType
+            irScript.explicitCallParameters = descriptor.unsubstitutedPrimaryConstructor.valueParameters.map { valueParameterDescriptor ->
+                valueParameterDescriptor.toIrValueParameter(startOffset, endOffset, IrDeclarationOrigin.SCRIPT_CALL_PARAMETER)
+            }
 
             irScript.implicitReceivers = descriptor.implicitReceivers.map { implicitReceiver ->
                 // TODO: probably needs more magic
