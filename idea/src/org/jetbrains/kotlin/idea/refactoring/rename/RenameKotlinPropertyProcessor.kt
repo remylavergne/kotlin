@@ -99,7 +99,7 @@ class RenameKotlinPropertyProcessor : RenameKotlinPsiProcessor() {
             element is KtElement -> references.filter {
                 it is KtReference || (getterJvmName == null && (it.resolve() as? PsiNamedElement)?.name != setterJvmName) || (setterJvmName == null && (it.resolve() as? PsiNamedElement)?.name != getterJvmName)
             }
-            element is KtLightDeclaration<*, *> -> {
+            element is KtLightDeclaration<*> -> {
                 val name = element.name
                 if (name == getterJvmName || name == setterJvmName) references.filterNot { it is KtReference } else references
             }

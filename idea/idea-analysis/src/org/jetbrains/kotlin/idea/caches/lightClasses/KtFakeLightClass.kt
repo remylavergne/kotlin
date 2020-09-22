@@ -13,8 +13,10 @@ import com.intellij.psi.impl.light.AbstractLightClass
 import com.intellij.psi.impl.light.LightMethod
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.kotlin.asJava.classes.KtLightClass
+import org.jetbrains.kotlin.asJava.classes.KtLightClassWithDelegate
 import org.jetbrains.kotlin.asJava.classes.LightClassInheritanceHelper
 import org.jetbrains.kotlin.asJava.elements.KtLightElement
+import org.jetbrains.kotlin.asJava.elements.KtLightElementWithDelegate
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptorIfAny
 import org.jetbrains.kotlin.load.java.structure.LightClassOriginKind
@@ -28,7 +30,7 @@ import javax.swing.Icon
 // The main purpose is to allow search of inheritors within hierarchies containing such classes
 class KtFakeLightClass(override val kotlinOrigin: KtClassOrObject) :
     AbstractLightClass(kotlinOrigin.manager, KotlinLanguage.INSTANCE),
-    KtLightClass {
+    KtLightClassWithDelegate {
     private val _delegate by lazy { DummyJavaPsiFactory.createDummyClass(kotlinOrigin.project) }
     private val _containingClass by lazy { kotlinOrigin.containingClassOrObject?.let { KtFakeLightClass(it) } }
 
@@ -70,7 +72,7 @@ class KtFakeLightMethod private constructor(
     DummyJavaPsiFactory.createDummyVoidMethod(ktDeclaration.project),
     KtFakeLightClass(ktClassOrObject),
     KotlinLanguage.INSTANCE
-), KtLightElement<KtNamedDeclaration, PsiMethod> {
+), KtLightElementWithDelegate<KtNamedDeclaration, PsiMethod> {
     override val kotlinOrigin get() = ktDeclaration
     override val clsDelegate get() = myMethod
 

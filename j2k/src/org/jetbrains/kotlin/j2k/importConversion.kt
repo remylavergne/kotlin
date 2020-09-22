@@ -115,7 +115,7 @@ private fun Converter.convertStaticImportOnDemand(fqName: FqName, target: PsiEle
 }
 
 private fun convertStaticExplicitImport(fqName: FqName, target: PsiElement?): List<String> {
-    if (target is KtLightDeclaration<*, *>) {
+    if (target is KtLightDeclaration<*>) {
         val kotlinOrigin = target.kotlinOrigin
 
         val nameToImport = if (target is KtLightMethod && kotlinOrigin is KtProperty)

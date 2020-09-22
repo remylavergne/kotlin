@@ -636,7 +636,7 @@ internal object KotlinConverter {
         methods: LightClassUtil.PropertyAccessorsPsiMethods?,
         givenParent: UElement?
     ): Array<UElementAlternative<*>> = if (methods != null) arrayOf(
-        alternative { methods.backingField?.let { KotlinUField(it, (it as? KtLightElement<*, *>)?.kotlinOrigin, givenParent) } },
+        alternative { methods.backingField?.let { KotlinUField(it, (it as? KtLightElement<*>)?.kotlinOrigin, givenParent) } },
         alternative { methods.getter?.let { convertDeclaration(it, givenParent, arrayOf(UMethod::class.java)) as? UMethod } },
         alternative { methods.setter?.let { convertDeclaration(it, givenParent, arrayOf(UMethod::class.java)) as? UMethod } }
     ) else emptyArray()

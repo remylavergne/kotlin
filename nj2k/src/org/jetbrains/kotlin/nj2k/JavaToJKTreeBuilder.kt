@@ -34,6 +34,7 @@ import org.jetbrains.kotlin.asJava.classes.KtLightClass
 import org.jetbrains.kotlin.asJava.classes.KtLightClassForFacade
 import org.jetbrains.kotlin.asJava.elements.KtLightElement
 import org.jetbrains.kotlin.asJava.elements.KtLightField
+import org.jetbrains.kotlin.asJava.elements.KtLightFieldWithDelegate
 import org.jetbrains.kotlin.asJava.elements.KtLightMethod
 import org.jetbrains.kotlin.idea.caches.lightClasses.KtLightClassForDecompiledDeclaration
 import org.jetbrains.kotlin.idea.j2k.content
@@ -135,7 +136,7 @@ class JavaToJKTreeBuilder constructor(
             kotlinOrigin?.fqName ?: FqName(qualifiedName.orEmpty())
 
         val name =
-            target.safeAs<KtLightElement<*, *>>()?.kotlinOrigin?.getKotlinFqName()?.asString()
+            target.safeAs<KtLightElement<*>>()?.kotlinOrigin?.getKotlinFqName()?.asString()
                 ?: target.safeAs<KtLightClass>()?.containingFile?.safeAs<KtFile>()?.packageFqName?.asString()?.let { "$it.*" }
                 ?: target.safeAs<KtLightClassForFacade>()?.fqName?.parent()?.asString()?.let { "$it.*" }
                 ?: target.safeAs<KtLightClassForDecompiledDeclaration>()?.fqName()?.parent()?.asString()?.let { "$it.*" }
@@ -470,7 +471,7 @@ class JavaToJKTreeBuilder constructor(
             if (target is KtLightClassForFacade
                 || target is KtLightClassForDecompiledDeclaration
             ) return JKStubExpression()
-            if (target is KtLightField
+            if (target is KtLightFieldWithDelegate
                 && target.name == "INSTANCE"
                 && target.containingClass.kotlinOrigin is KtObjectDeclaration
             ) {

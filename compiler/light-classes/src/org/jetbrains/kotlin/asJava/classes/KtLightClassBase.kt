@@ -29,7 +29,7 @@ import org.jetbrains.kotlin.asJava.elements.KtLightMethodImpl
 import org.jetbrains.kotlin.idea.KotlinLanguage
 
 abstract class KtLightClassBase protected constructor(manager: PsiManager)
-    : AbstractLightClass(manager, KotlinLanguage.INSTANCE), KtLightClass, PsiExtensibleClass {
+    : AbstractLightClass(manager, KotlinLanguage.INSTANCE), KtLightClassWithDelegate, PsiExtensibleClass {
     protected open val myInnersCache = KotlinClassInnerStuffCache(
         this, listOf(KotlinModificationTrackerService.getInstance(manager.project).outOfBlockModificationTracker))
 

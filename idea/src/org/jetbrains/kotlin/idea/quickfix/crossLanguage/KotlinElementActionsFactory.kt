@@ -370,7 +370,7 @@ class KotlinElementActionsFactory : JvmElementActionsFactory() {
     }
 
     override fun createAddAnnotationActions(target: JvmModifiersOwner, request: AnnotationRequest): List<IntentionAction> {
-        val declaration = (target as? KtLightElement<*, *>)?.kotlinOrigin as? KtModifierListOwner ?: return emptyList()
+        val declaration = (target as? KtLightElement<*>)?.kotlinOrigin as? KtModifierListOwner ?: return emptyList()
         if (declaration.language != KotlinLanguage.INSTANCE) return emptyList()
         val annotationUseSiteTarget = when (target) {
             is JvmField -> AnnotationUseSiteTarget.FIELD
@@ -411,7 +411,7 @@ class KotlinElementActionsFactory : JvmElementActionsFactory() {
     }
 
     override fun createChangeParametersActions(target: JvmMethod, request: ChangeParametersRequest): List<IntentionAction> {
-        val ktNamedFunction = (target as? KtLightElement<*, *>)?.kotlinOrigin as? KtNamedFunction ?: return emptyList()
+        val ktNamedFunction = (target as? KtLightElement<*>)?.kotlinOrigin as? KtNamedFunction ?: return emptyList()
         return listOfNotNull(ChangeMethodParameters.create(ktNamedFunction, request))
     }
 }

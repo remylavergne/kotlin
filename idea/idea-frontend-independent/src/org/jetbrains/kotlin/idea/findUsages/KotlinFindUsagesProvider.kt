@@ -63,7 +63,7 @@ open class KotlinFindUsagesProviderBase : FindUsagesProvider {
             }
             is KtLabeledExpression -> element.getLabelName() ?: ""
             is KtImportAlias -> element.name ?: ""
-            is KtLightElement<*, *> -> element.kotlinOrigin?.let { getDescriptiveName(it) } ?: ""
+            is KtLightElement<*> -> element.kotlinOrigin?.let { getDescriptiveName(it) } ?: ""
             is KtParameter -> {
                 if (element.isPropertyParameter()) {
                     (element.name ?: "") + (element.containerDescription?.let { " of $it" } ?: "")

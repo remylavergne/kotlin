@@ -62,7 +62,7 @@ class KotlinDetachedUastTest : KotlinLightCodeInsightFixtureTestCase() {
 
         psiElement(psiFile).let {
             // Otherwise following asserts have no sense
-            TestCase.assertTrue("psi element should be light ", it is KtLightElement<*, *>)
+            TestCase.assertTrue("psi element should be light ", it is KtLightElement<*>)
         }
         val copied = psiFile.copied()
         TestCase.assertNull("virtual file for copy should be null", copied.virtualFile)

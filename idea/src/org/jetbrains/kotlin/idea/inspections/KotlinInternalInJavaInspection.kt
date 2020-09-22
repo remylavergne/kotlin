@@ -29,7 +29,7 @@ class KotlinInternalInJavaInspection : LocalInspectionTool() {
     }
 
     private fun PsiElement.checkAndReport(holder: ProblemsHolder) {
-        val lightElement = (this as? PsiReference)?.resolve() as? KtLightElement<*, *> ?: return
+        val lightElement = (this as? PsiReference)?.resolve() as? KtLightElement<*> ?: return
         val modifierListOwner = lightElement.kotlinOrigin as? KtModifierListOwner ?: return
         if (inSameModule(modifierListOwner)) {
             return

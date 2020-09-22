@@ -36,9 +36,9 @@ import org.jetbrains.kotlin.types.KotlinType
 private class KtUltraLightFieldModifierList(
     private val support: KtUltraLightSupport,
     private val declaration: KtNamedDeclaration,
-    owner: KtLightElement<KtModifierListOwner, PsiModifierListOwner>,
+    owner: KtLightElementWithDelegate<KtModifierListOwner, PsiModifierListOwner>,
     private val modifiers: Set<String>,
-) : KtUltraLightModifierList<KtLightElement<KtModifierListOwner, PsiModifierListOwner>>(owner, support) {
+) : KtUltraLightModifierList<KtLightElementWithDelegate<KtModifierListOwner, PsiModifierListOwner>>(owner, support) {
 
     override fun hasModifierProperty(name: String): Boolean = when (name) {
         PsiModifier.VOLATILE -> hasFieldAnnotation(VOLATILE_ANNOTATION_FQ_NAME)
@@ -84,7 +84,7 @@ internal open class KtUltraLightFieldImpl protected constructor(
     private val containingClass: KtLightClass,
     private val support: KtUltraLightSupport,
     modifiers: Set<String>,
-) : LightFieldBuilder(name, PsiType.NULL, declaration), KtLightField,
+) : LightFieldBuilder(name, PsiType.NULL, declaration), KtLightFieldWithDelegate,
     KtUltraLightElementWithNullabilityAnnotation<KtDeclaration, PsiField> {
 
     private val modifierList by lazyPub {

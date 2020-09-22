@@ -17,6 +17,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.asJava.classes.KtLightClassForFacade
 import org.jetbrains.kotlin.asJava.elements.KtLightElement
+import org.jetbrains.kotlin.asJava.elements.KtLightElementWithDelegate
 import org.jetbrains.kotlin.caches.project.cacheByClassInvalidatingOnRootModifications
 import org.jetbrains.kotlin.caches.project.cacheInvalidatingOnRootModifications
 import org.jetbrains.kotlin.idea.caches.lightClasses.KtLightClassForDecompiledDeclaration
@@ -143,7 +144,7 @@ private fun <T> PsiElement.collectInfos(c: ModuleInfoCollector<T>): T {
         return c.onResult(it)
     }
 
-    if (this is KtLightElement<*, *>) {
+    if (this is KtLightElementWithDelegate<*, *>) {
         return this.processLightElement(c)
     }
 
@@ -197,7 +198,7 @@ private fun <T> PsiElement.collectInfos(c: ModuleInfoCollector<T>): T {
     )
 }
 
-private fun <T> KtLightElement<*, *>.processLightElement(c: ModuleInfoCollector<T>): T {
+private fun <T> KtLightElementWithDelegate<*, *>.processLightElement(c: ModuleInfoCollector<T>): T {
     val decompiledClass = this.getParentOfType<KtLightClassForDecompiledDeclaration>(strict = false)
     if (decompiledClass != null) {
         return c.virtualFileProcessor(

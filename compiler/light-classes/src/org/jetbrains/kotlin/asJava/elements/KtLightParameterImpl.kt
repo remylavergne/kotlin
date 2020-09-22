@@ -23,9 +23,9 @@ internal class KtLightParameterImpl(
     private val dummyDelegate: PsiParameter,
     private val clsDelegateProvider: () -> PsiParameter?,
     private val index: Int,
-    method: KtLightMethod
+    method: KtLightMethodWithDelegate
 ) : LightParameter(dummyDelegate.name, dummyDelegate.type, method, KotlinLanguage.INSTANCE),
-    KtLightDeclaration<KtParameter, PsiParameter>, KtLightParameter {
+    KtLightDeclarationWithDelegate<KtParameter, PsiParameter>, KtLightParameter {
 
     private val lazyDelegate by lazyPub { clsDelegateProvider() ?: dummyDelegate }
 

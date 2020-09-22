@@ -37,7 +37,7 @@ abstract class KtLightMemberImpl<out D : PsiMember>(
     override val lightMemberOrigin: LightMemberOrigin?,
     private val containingClass: KtLightClass,
     private val dummyDelegate: D?
-) : KtLightElementBase(containingClass), PsiMember, KtLightMember<D> {
+) : KtLightElementBase(containingClass), PsiMember, KtLightMemberWithDelegate<D> {
     override val clsDelegate by lazyPub(computeRealDelegate)
     private val lightIdentifier by lazyPub { KtLightIdentifier(this, kotlinOrigin as? KtNamedDeclaration) }
 
@@ -72,7 +72,7 @@ abstract class KtLightMemberImpl<out D : PsiMember>(
     override fun isEquivalentTo(another: PsiElement?): Boolean {
         return this == another ||
                 lightMemberOrigin?.isEquivalentTo(another) == true ||
-                another is KtLightMember<*> && lightMemberOrigin?.isEquivalentTo(another.lightMemberOrigin) == true
+                another is KtLightMemberWithDelegate<*> && lightMemberOrigin?.isEquivalentTo(another.lightMemberOrigin) == true
     }
 }
 
@@ -87,8 +87,8 @@ internal fun getMemberOrigin(member: PsiMember): LightMemberOriginForDeclaration
 private val visibilityModifiers = arrayOf(PsiModifier.PRIVATE, PsiModifier.PACKAGE_LOCAL, PsiModifier.PROTECTED, PsiModifier.PUBLIC)
 
 private class KtLightMemberModifierList(
-    owner: KtLightMember<*>, private val dummyDelegate: PsiModifierList?
-) : KtLightModifierList<KtLightMember<*>>(owner) {
+    owner: KtLightMemberWithDelegate<*>, private val dummyDelegate: PsiModifierList?
+) : KtLightModifierList<KtLightMemberWithDelegate<*>>(owner) {
     override fun hasModifierProperty(name: String) = when {
         name == PsiModifier.ABSTRACT && isImplementationInInterface() -> false
         // pretend this method behaves like a default method

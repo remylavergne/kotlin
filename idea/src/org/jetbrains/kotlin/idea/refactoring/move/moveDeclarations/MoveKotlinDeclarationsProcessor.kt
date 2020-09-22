@@ -122,7 +122,7 @@ private object ElementHashingStrategy : TObjectHashingStrategy<PsiElement> {
     override fun equals(e1: PsiElement?, e2: PsiElement?): Boolean {
         if (e1 === e2) return true
         // Name should be enough to distinguish different light elements based on the same original declaration
-        if (e1 is KtLightDeclaration<*, *> && e2 is KtLightDeclaration<*, *>) {
+        if (e1 is KtLightDeclaration<*> && e2 is KtLightDeclaration<*>) {
             return e1.kotlinOrigin == e2.kotlinOrigin && e1.name == e2.name
         }
         return e1 == e2
@@ -131,7 +131,7 @@ private object ElementHashingStrategy : TObjectHashingStrategy<PsiElement> {
     override fun computeHashCode(e: PsiElement?): Int {
         return when (e) {
             null -> 0
-            is KtLightDeclaration<*, *> -> (e.kotlinOrigin?.hashCode() ?: 0) * 31 + (e.name?.hashCode() ?: 0)
+            is KtLightDeclaration<*> -> (e.kotlinOrigin?.hashCode() ?: 0) * 31 + (e.name?.hashCode() ?: 0)
             else -> e.hashCode()
         }
     }

@@ -56,7 +56,7 @@ open class KotlinUMethod(
 
     override val annotations: List<UAnnotation> by lz {
         psi.annotations
-            .mapNotNull { (it as? KtLightElement<*, *>)?.kotlinOrigin as? KtAnnotationEntry }
+            .mapNotNull { (it as? KtLightElement<*>)?.kotlinOrigin as? KtAnnotationEntry }
             .map { KotlinUAnnotation(it, this) }
     }
 
@@ -71,7 +71,7 @@ open class KotlinUMethod(
     override val uastParameters by lz {
 
         fun parameterOrigin(psiParameter: PsiParameter?): KtElement? = when (psiParameter) {
-            is KtLightElement<*, *> -> psiParameter.kotlinOrigin
+            is KtLightElement<*> -> psiParameter.kotlinOrigin
             is UastKotlinPsiParameter -> psiParameter.ktParameter
             else -> null
         }
@@ -127,8 +127,8 @@ open class KotlinUMethod(
 
     companion object {
         private fun getKotlinMemberOrigin(element: PsiElement?): KtDeclaration? {
-            (element as? KtLightMember<*>)?.lightMemberOrigin?.auxiliaryOriginalElement?.let { return it }
-            (element as? KtLightElement<*, *>)?.kotlinOrigin?.let { return it as? KtDeclaration }
+            (element as? KtLightMember)?.lightMemberOrigin?.auxiliaryOriginalElement?.let { return it }
+            (element as? KtLightElement<*>)?.kotlinOrigin?.let { return it as? KtDeclaration }
             return null
         }
 

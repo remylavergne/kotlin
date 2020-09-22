@@ -146,7 +146,7 @@ fun KtTypeParameter.toPsiTypeParameters(): List<PsiTypeParameter> {
 val PsiElement.unwrapped: PsiElement?
     get() = when {
         this is PsiElementWithOrigin<*> -> origin
-        this is KtLightElement<*, *> -> kotlinOrigin
+        this is KtLightElement<*> -> kotlinOrigin
         this is KtLightElementBase -> kotlinOrigin
         else -> this
     }
@@ -228,10 +228,10 @@ fun KtLightMethod.checkIsMangled(): Boolean {
     return originalName == kotlinOrigin?.name
 }
 
-fun fastCheckIsNullabilityApplied(lightElement: KtLightElement<*, PsiModifierListOwner>): Boolean {
+fun fastCheckIsNullabilityApplied(lightElement: KtLightElement<*>): Boolean {
 
     val elementIsApplicable =
-        (lightElement is KtLightMember<*> && lightElement !is KtLightFieldImpl.KtLightEnumConstant) || lightElement is LightParameter
+        (lightElement is KtLightMember && lightElement !is KtLightFieldImpl.KtLightEnumConstant) || lightElement is LightParameter
     if (!elementIsApplicable) return false
 
     val annotatedElement = lightElement.kotlinOrigin ?: return true

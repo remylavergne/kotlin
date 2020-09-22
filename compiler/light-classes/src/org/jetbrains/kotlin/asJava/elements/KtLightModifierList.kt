@@ -21,9 +21,9 @@ import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.jvm.annotations.JVM_DEFAULT_FQ_NAME
 import org.jetbrains.kotlin.resolve.source.getPsi
 
-abstract class KtLightModifierList<out T : KtLightElement<KtModifierListOwner, PsiModifierListOwner>>(
+abstract class KtLightModifierList<out T : KtLightElementWithDelegate<KtModifierListOwner, PsiModifierListOwner>>(
     protected val owner: T
-) : KtLightElementBase(owner), PsiModifierList, KtLightElement<KtModifierList, PsiModifierList> {
+) : KtLightElementBase(owner), PsiModifierList, KtLightElementWithDelegate<KtModifierList, PsiModifierList> {
     override val clsDelegate by lazyPub { owner.clsDelegate.modifierList!! }
     private val _annotations by lazyPub { computeAnnotations() }
 
@@ -79,7 +79,7 @@ abstract class KtLightModifierList<out T : KtLightElement<KtModifierListOwner, P
 
             val nullabilityAnnotation = when (modifierListOwner) {
                 is KtUltraLightElementWithNullabilityAnnotation<*, *> -> KtUltraLightNullabilityAnnotation(modifierListOwner, this)
-                else -> KtLightNullabilityAnnotation(modifierListOwner as KtLightElement<*, PsiModifierListOwner>, this)
+                else -> KtLightNullabilityAnnotation(modifierListOwner as KtLightElementWithDelegate<*, PsiModifierListOwner>, this)
             }
 
             return annotationsForEntries + listOf(nullabilityAnnotation)
@@ -90,15 +90,15 @@ abstract class KtLightModifierList<out T : KtLightElement<KtModifierListOwner, P
 }
 
 class KtUltraLightSimpleModifierList(
-    owner: KtLightElement<KtModifierListOwner, PsiModifierListOwner>,
+    owner: KtLightElementWithDelegate<KtModifierListOwner, PsiModifierListOwner>,
     private val modifiers: Set<String>,
-) : KtUltraLightModifierListBase<KtLightElement<KtModifierListOwner, PsiModifierListOwner>>(owner) {
+) : KtUltraLightModifierListBase<KtLightElementWithDelegate<KtModifierListOwner, PsiModifierListOwner>>(owner) {
     override fun hasModifierProperty(name: String) = name in modifiers
 
     override fun copy() = KtUltraLightSimpleModifierList(owner, modifiers)
 }
 
-abstract class KtUltraLightModifierList<out T : KtLightElement<KtModifierListOwner, PsiModifierListOwner>>(
+abstract class KtUltraLightModifierList<out T : KtLightElementWithDelegate<KtModifierListOwner, PsiModifierListOwner>>(
     owner: T,
     private val support: KtUltraLightSupport
 ) : KtUltraLightModifierListBase<T>(owner) {
@@ -122,7 +122,7 @@ abstract class KtUltraLightModifierList<out T : KtLightElement<KtModifierListOwn
     }
 }
 
-abstract class KtUltraLightModifierListBase<out T : KtLightElement<KtModifierListOwner, PsiModifierListOwner>>(
+abstract class KtUltraLightModifierListBase<out T : KtLightElementWithDelegate<KtModifierListOwner, PsiModifierListOwner>>(
     owner: T
 ) : KtLightModifierList<T>(owner) {
 
@@ -141,8 +141,8 @@ abstract class KtUltraLightModifierListBase<out T : KtLightElement<KtModifierLis
 }
 
 class KtLightSimpleModifierList(
-    owner: KtLightElement<KtModifierListOwner, PsiModifierListOwner>, private val modifiers: Set<String>
-) : KtLightModifierList<KtLightElement<KtModifierListOwner, PsiModifierListOwner>>(owner) {
+    owner: KtLightElementWithDelegate<KtModifierListOwner, PsiModifierListOwner>, private val modifiers: Set<String>
+) : KtLightModifierList<KtLightElementWithDelegate<KtModifierListOwner, PsiModifierListOwner>>(owner) {
     override fun hasModifierProperty(name: String) = name in modifiers
 
     override fun copy() = KtLightSimpleModifierList(owner, modifiers)
@@ -189,18 +189,18 @@ private fun lightAnnotationsForEntries(lightModifierList: KtLightModifierList<*>
         }
 }
 
-fun isFromSources(lightElement: KtLightElement<*, *>): Boolean {
+fun isFromSources(lightElement: KtLightElement<*>): Boolean {
     if (lightElement is KtLightClassForSourceDeclaration) return true
     if (lightElement.parent is KtLightClassForSourceDeclaration) return true
 
-    val ktLightMember = lightElement.getParentOfType<KtLightMember<*>>(false) ?: return true // hope it will never happen
+    val ktLightMember = lightElement.getParentOfType<KtLightMemberWithDelegate<*>>(false) ?: return true // hope it will never happen
     if (ktLightMember.lightMemberOrigin !is LightMemberOriginForDeclaration) return false
     return true
 }
 
 private fun getAnnotationDescriptors(
     declaration: KtAnnotated,
-    annotatedLightElement: KtLightElement<*, *>
+    annotatedLightElement: KtLightElement<*>
 ): List<AnnotationDescriptor> {
     val context = LightClassGenerationSupport.getInstance(declaration.project).analyze(declaration)
 

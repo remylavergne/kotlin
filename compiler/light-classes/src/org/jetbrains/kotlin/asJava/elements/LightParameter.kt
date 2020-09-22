@@ -23,7 +23,7 @@ import com.intellij.psi.*
 open class LightParameter @JvmOverloads constructor(
     private val myName: String,
     type: PsiType,
-    val method: KtLightMethod,
+    val method: KtLightMethodWithDelegate,
     language: Language?,
     private val myVarArgs: Boolean = type is PsiEllipsisType
 ) : LightVariableBuilder(method.manager, myName, type, language),

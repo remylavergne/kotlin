@@ -40,7 +40,7 @@ open class KtLightIdentifier(
             else -> null
         }
 
-    override fun getMirror() = ((lightOwner as? KtLightElement<*, *>)?.clsDelegate as? PsiNameIdentifierOwner)?.nameIdentifier
+    override fun getMirror() = ((lightOwner as? KtLightElementWithDelegate<*, *>)?.clsDelegate as? PsiNameIdentifierOwner)?.nameIdentifier
 
     override fun isPhysical() = true
     override fun getParent() = lightOwner

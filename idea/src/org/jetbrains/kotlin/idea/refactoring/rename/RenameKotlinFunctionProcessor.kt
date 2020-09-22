@@ -19,6 +19,7 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.util.SmartList
 import org.jetbrains.kotlin.asJava.LightClassUtil
 import org.jetbrains.kotlin.asJava.elements.KtLightElement
+import org.jetbrains.kotlin.asJava.elements.KtLightElementWithDelegate
 import org.jetbrains.kotlin.asJava.elements.KtLightMethod
 import org.jetbrains.kotlin.asJava.namedUnwrappedElement
 import org.jetbrains.kotlin.asJava.unwrapped
@@ -69,7 +70,7 @@ class RenameKotlinFunctionProcessor : RenameKotlinPsiProcessor() {
         return when {
             getJvmName(element) == null -> allReferences
             element is KtElement -> allReferences.filterIsInstance<KtReference>()
-            element is KtLightElement<*, *> -> allReferences.filterNot { it is KtReference }
+            element is KtLightElement<*> -> allReferences.filterNot { it is KtReference }
             else -> emptyList()
         }
     }
@@ -92,7 +93,7 @@ class RenameKotlinFunctionProcessor : RenameKotlinPsiProcessor() {
     class FunctionWithSupersWrapper(
         val originalDeclaration: KtNamedFunction,
         val supers: List<PsiElement>
-    ) : KtLightElement<KtNamedFunction, KtNamedFunction>, PsiNamedElement by originalDeclaration {
+    ) : KtLightElementWithDelegate<KtNamedFunction, KtNamedFunction>, PsiNamedElement by originalDeclaration {
         override val kotlinOrigin: KtNamedFunction?
             get() = originalDeclaration
         override val clsDelegate: KtNamedFunction

@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.asJava.classes.KtLightClass
 import org.jetbrains.kotlin.asJava.elements.KtLightElementBase
 import org.jetbrains.kotlin.asJava.elements.KtLightFieldForSourceDeclarationSupport
 import org.jetbrains.kotlin.asJava.elements.KtLightMember
+import org.jetbrains.kotlin.asJava.elements.KtLightMemberWithDelegate
 import org.jetbrains.kotlin.idea.caches.lightClasses.LightMemberOriginForCompiledField
 import org.jetbrains.kotlin.psi.KtDeclaration
 
@@ -19,7 +20,7 @@ open class KtLightFieldForDecompiledDeclaration(
     private val fldDelegate: PsiField,
     private val fldParent: KtLightClass,
     override val lightMemberOrigin: LightMemberOriginForCompiledField
-) : KtLightElementBase(fldParent), PsiField, KtLightFieldForSourceDeclarationSupport, KtLightMember<PsiField>, PsiVariableEx {
+) : KtLightElementBase(fldParent), PsiField, KtLightFieldForSourceDeclarationSupport, KtLightMemberWithDelegate<PsiField>, PsiVariableEx {
 
     override val kotlinOrigin: KtDeclaration? get() = lightMemberOrigin.originalElement
 

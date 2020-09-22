@@ -120,7 +120,7 @@ class KtFileLightClassTest : KotlinLightCodeInsightFixtureTestCase() {
             .methods.first { it.name == "bar" }
             .annotations.first { it.qualifiedName == "kotlin.Deprecated" }.also {
                 // Otherwise following asserts have no sense
-                TestCase.assertTrue("psi element should be light ", it is KtLightElement<*, *>)
+                TestCase.assertTrue("psi element should be light ", it is KtLightElement<*>)
             }
 
 

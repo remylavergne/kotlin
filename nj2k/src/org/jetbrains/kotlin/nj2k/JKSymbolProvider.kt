@@ -51,7 +51,7 @@ class JKSymbolProvider(private val resolver: JKResolver) {
 
     fun provideDirectSymbol(psi: PsiElement): JKSymbol {
         return symbolsByPsi.getOrPut(psi) {
-            if (psi is KtLightDeclaration<*, *>)
+            if (psi is KtLightDeclaration<*>)
                 psi.kotlinOrigin
                     ?.let { provideDirectSymbol(it) }
                     ?: symbolForNonKotlinElement(psi)

@@ -29,9 +29,9 @@ import org.jetbrains.kotlin.psi.*
 internal class KtUltraLightSuspendContinuationParameter(
     private val ktFunction: KtFunction,
     private val support: KtUltraLightSupport,
-    method: KtLightMethod
+    method: KtLightMethodWithDelegate
 ) : LightParameter(SUSPEND_FUNCTION_COMPLETION_PARAMETER_NAME, PsiType.NULL, method, method.language),
-    KtLightParameter,
+    KtLightParameterWithDelegate,
     KtUltraLightElementWithNullabilityAnnotation<KtParameter, PsiParameter> {
 
     override val qualifiedNameForNullabilityAnnotation: String?

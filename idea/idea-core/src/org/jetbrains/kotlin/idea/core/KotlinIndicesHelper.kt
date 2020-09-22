@@ -278,7 +278,7 @@ class KotlinIndicesHelper(
         val processed = HashSet<CallableDescriptor>()
         for (javaDeclaration in javaDeclarations) {
             ProgressManager.checkCanceled()
-            if (javaDeclaration is KtLightElement<*, *>) continue
+            if (javaDeclaration is KtLightElement<*>) continue
             if (!filter(javaDeclaration as PsiMember)) continue
             val descriptor = javaDeclaration.getJavaMemberDescriptor(resolutionFacade) as? CallableDescriptor ?: continue
             if (!processed.add(descriptor)) continue
@@ -462,7 +462,7 @@ class KotlinIndicesHelper(
         for (name in allMethodNames) {
             ProgressManager.checkCanceled()
 
-            for (method in shortNamesCache.getMethodsByName(name, scopeWithoutKotlin).filterNot { it is KtLightElement<*, *> }) {
+            for (method in shortNamesCache.getMethodsByName(name, scopeWithoutKotlin).filterNot { it is KtLightElement<*> }) {
                 if (!method.hasModifierProperty(PsiModifier.STATIC)) continue
                 if (filterOutPrivate && method.hasModifierProperty(PsiModifier.PRIVATE)) continue
                 if (method.containingClass?.parent !is PsiFile) continue // only top-level classes
@@ -489,7 +489,7 @@ class KotlinIndicesHelper(
         for (name in allFieldNames) {
             ProgressManager.checkCanceled()
 
-            for (field in shortNamesCache.getFieldsByName(name, scopeWithoutKotlin).filterNot { it is KtLightElement<*, *> }) {
+            for (field in shortNamesCache.getFieldsByName(name, scopeWithoutKotlin).filterNot { it is KtLightElement<*> }) {
                 if (!field.hasModifierProperty(PsiModifier.STATIC)) continue
                 if (filterOutPrivate && field.hasModifierProperty(PsiModifier.PRIVATE)) continue
                 val descriptor = field.getJavaMemberDescriptor(resolutionFacade) ?: continue

@@ -130,7 +130,7 @@ internal class ChangeMethodParameters(
     }
 
     private val ChangeParametersRequest.ExistingParameterWrapper.existingKtParameter
-        get() = (existingParameter as? KtLightElement<*, *>)?.kotlinOrigin as? KtParameter
+        get() = (existingParameter as? KtLightElement<*>)?.kotlinOrigin as? KtParameter
 
 
     override fun invoke(project: Project, editor: Editor?, file: KtFile) {

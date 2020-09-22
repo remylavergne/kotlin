@@ -10,7 +10,7 @@ import com.intellij.psi.PsiPrimitiveType
 import com.intellij.psi.PsiType
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.kotlin.asJava.elements.KtLightDeclaration
+import org.jetbrains.kotlin.asJava.elements.KtLightDeclarationWithDelegate
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.types.typeUtil.TypeNullability
 import org.jetbrains.kotlin.types.typeUtil.isTypeParameter
 import org.jetbrains.kotlin.types.typeUtil.nullability
 
-interface KtUltraLightElementWithNullabilityAnnotation<out T : KtDeclaration, out D : PsiModifierListOwner> : KtLightDeclaration<T, D>,
+interface KtUltraLightElementWithNullabilityAnnotation<out T : KtDeclaration, out D : PsiModifierListOwner> : KtLightDeclarationWithDelegate<T, D>,
     PsiModifierListOwner {
 
     fun computeQualifiedNameForNullabilityAnnotation(kotlinType: KotlinType?): String? {

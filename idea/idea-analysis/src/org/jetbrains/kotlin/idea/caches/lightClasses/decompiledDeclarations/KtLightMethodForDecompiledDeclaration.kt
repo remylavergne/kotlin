@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.asJava.checkIsMangled
 import org.jetbrains.kotlin.asJava.classes.KtLightClass
 import org.jetbrains.kotlin.asJava.elements.KtLightElementBase
 import org.jetbrains.kotlin.asJava.elements.KtLightMember
+import org.jetbrains.kotlin.asJava.elements.KtLightMemberWithDelegate
 import org.jetbrains.kotlin.asJava.elements.KtLightMethod
 import org.jetbrains.kotlin.idea.caches.lightClasses.LightMemberOriginForCompiledMethod
 import org.jetbrains.kotlin.psi.KtDeclaration
@@ -22,7 +23,7 @@ class KtLightMethodForDecompiledDeclaration(
     private val funDelegate: PsiMethod,
     private val funParent: KtLightClass,
     override val lightMemberOrigin: LightMemberOriginForCompiledMethod,
-) : KtLightElementBase(funParent), PsiMethod, KtLightMethod, KtLightMember<PsiMethod> {
+) : KtLightElementBase(funParent), PsiMethod, KtLightMethod, KtLightMemberWithDelegate<PsiMethod> {
 
     override val kotlinOrigin: KtDeclaration? get() = lightMemberOrigin.originalElement
 

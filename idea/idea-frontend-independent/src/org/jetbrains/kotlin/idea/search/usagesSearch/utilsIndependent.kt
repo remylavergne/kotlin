@@ -62,7 +62,7 @@ private fun PsiElement.buildProcessDelegationCallJavaConstructorUsagesTask(
     scope: SearchScope,
     process: (KtCallElement) -> Boolean
 ): () -> Boolean {
-    if (this is KtLightElement<*, *>) return { true }
+    if (this is KtLightElement<*>) return { true }
     // TODO: Temporary hack to avoid NPE while KotlinNoOriginLightMethod is around
     if (this is KtLightMethod && this.kotlinOrigin == null) return { true }
     if (!(this is PsiMethod && isConstructor)) return { true }

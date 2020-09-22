@@ -51,7 +51,7 @@ abstract class AbstractKotlinUVariable(givenParent: UElement?) : KotlinAbstractU
             val initializerExpression = when (psi) {
                 is UastKotlinPsiVariable -> psi.ktInitializer
                 is UastKotlinPsiParameter -> psi.ktDefaultValue
-                is KtLightElement<*, *> -> {
+                is KtLightElement<*> -> {
                     val origin = psi.kotlinOrigin?.takeIf { it.canAnalyze() } // EA-137191
                     when (origin) {
                         is KtVariableDeclaration -> origin.initializer
@@ -67,7 +67,7 @@ abstract class AbstractKotlinUVariable(givenParent: UElement?) : KotlinAbstractU
     val delegateExpression: UExpression? by lz {
         val psi = psi
         val expression = when (psi) {
-            is KtLightElement<*, *> -> (psi.kotlinOrigin as? KtProperty)?.delegateExpression
+            is KtLightElement<*> -> (psi.kotlinOrigin as? KtProperty)?.delegateExpression
             is UastKotlinPsiVariable -> (psi.ktElement as? KtProperty)?.delegateExpression
             else -> null
         }
@@ -76,7 +76,7 @@ abstract class AbstractKotlinUVariable(givenParent: UElement?) : KotlinAbstractU
     }
 
     override fun getNameIdentifier(): PsiIdentifier {
-        val kotlinOrigin = (psi as? KtLightElement<*, *>)?.kotlinOrigin
+        val kotlinOrigin = (psi as? KtLightElement<*>)?.kotlinOrigin
         return UastLightIdentifier(psi, kotlinOrigin as? KtDeclaration)
     }
 

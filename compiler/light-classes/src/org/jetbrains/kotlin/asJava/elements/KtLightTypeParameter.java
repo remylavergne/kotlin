@@ -23,7 +23,7 @@ import com.intellij.psi.search.SearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.asJava.LightClassUtilsKt;
-import org.jetbrains.kotlin.asJava.classes.KtLightClass;
+import org.jetbrains.kotlin.asJava.classes.KtLightClassWithDelegate;
 import org.jetbrains.kotlin.idea.KotlinLanguage;
 import org.jetbrains.kotlin.psi.KtTypeParameter;
 import org.jetbrains.kotlin.psi.KtTypeParameterListOwner;
@@ -31,7 +31,7 @@ import org.jetbrains.kotlin.psi.KtTypeParameterListOwner;
 import java.util.List;
 
 public class KtLightTypeParameter
-        extends AbstractLightClass implements PsiTypeParameter, KtLightDeclaration<KtTypeParameter, PsiTypeParameter> {
+        extends AbstractLightClass implements PsiTypeParameter, KtLightDeclarationWithDelegate<KtTypeParameter, PsiTypeParameter> {
     private final PsiTypeParameterListOwner owner;
     private final int index;
     private final String name;
@@ -70,8 +70,8 @@ public class KtLightTypeParameter
 
     @NotNull
     private PsiTypeParameterListOwner getOwnerDelegate() {
-        if (owner instanceof KtLightClass) return ((KtLightClass) owner).getClsDelegate();
-        if (owner instanceof KtLightMethod) return ((KtLightMethod) owner).getClsDelegate();
+        if (owner instanceof KtLightClassWithDelegate) return ((KtLightClassWithDelegate) owner).getClsDelegate();
+        if (owner instanceof KtLightMethodWithDelegate) return ((KtLightMethodWithDelegate) owner).getClsDelegate();
         return owner;
     }
 

@@ -62,7 +62,7 @@ abstract class KotlinAbstractUElement(private val givenParent: UElement?) : Kotl
 
         }
 
-        if (psi is KtLightElement<*, *> && sourcePsi.safeAs<KtClassOrObject>()?.isLocal == true) {
+        if (psi is KtLightElement<*> && sourcePsi.safeAs<KtClassOrObject>()?.isLocal == true) {
             val originParent = psi.kotlinOrigin?.parent
             parent = when (originParent) {
                 null -> parent

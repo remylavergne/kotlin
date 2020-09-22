@@ -31,10 +31,10 @@ import org.jetbrains.kotlin.psi.psiUtil.getElementTextWithContext
 class KtLightPsiReferenceList(
     override val clsDelegate: PsiReferenceList,
     private val owner: KtLightClass
-) : KtLightElement<KtSuperTypeList, PsiReferenceList>, PsiReferenceList by clsDelegate {
+) : KtLightElementWithDelegate<KtSuperTypeList, PsiReferenceList>, PsiReferenceList by clsDelegate {
     inner class KtLightSuperTypeReference(
         override val clsDelegate: PsiJavaCodeReferenceElement
-    ) : KtLightElement<KtSuperTypeListEntry, PsiJavaCodeReferenceElement>, PsiJavaCodeReferenceElement by clsDelegate {
+    ) : KtLightElementWithDelegate<KtSuperTypeListEntry, PsiJavaCodeReferenceElement>, PsiJavaCodeReferenceElement by clsDelegate {
 
         override val kotlinOrigin by lazyPub {
             clsDelegate.qualifiedName?.let { this@KtLightPsiReferenceList.kotlinOrigin?.findEntry(it) }

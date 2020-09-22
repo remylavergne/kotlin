@@ -71,7 +71,7 @@ class AddJvmStaticIntention : SelfTargetingRangeIntention<KtNamedDeclaration>(
                         .search(element, searchScope)
                         .mapNotNull {
                             val refExpr = it.element as? PsiReferenceExpression ?: return@mapNotNull null
-                            if ((refExpr.resolve() as? KtLightElement<*, *>)?.kotlinOrigin != element) return@mapNotNull null
+                            if ((refExpr.resolve() as? KtLightElement<*>)?.kotlinOrigin != element) return@mapNotNull null
                             val qualifierExpr = refExpr.qualifierExpression as? PsiReferenceExpression ?: return@mapNotNull null
                             if (qualifierExpr.qualifierExpression == null) return@mapNotNull null
                             val instanceField = qualifierExpr.resolve() as? KtLightField ?: return@mapNotNull null

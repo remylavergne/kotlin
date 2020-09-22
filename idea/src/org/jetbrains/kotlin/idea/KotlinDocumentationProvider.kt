@@ -283,7 +283,7 @@ open class KotlinDocumentationProviderCompatBase : AbstractDocumentationProvider
                 return renderKotlinDeclaration(element, quickNavigation)
             } else if (element is KtNameReferenceExpression && element.getReferencedName() == "it") {
                 return renderKotlinImplicitLambdaParameter(element, quickNavigation)
-            } else if (element is KtLightDeclaration<*, *>) {
+            } else if (element is KtLightDeclaration<*>) {
                 val origin = element.kotlinOrigin ?: return null
                 return renderKotlinDeclaration(origin, quickNavigation)
             } else if (element is KtValueArgumentList) {

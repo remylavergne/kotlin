@@ -57,7 +57,7 @@ import org.jetbrains.kotlin.types.typeUtil.nullability
 private val LOG = Logger.getInstance("#org.jetbrains.kotlin.asJava.elements.lightAnnotations")
 
 abstract class KtLightAbstractAnnotation(parent: PsiElement, computeDelegate: Lazy<PsiAnnotation>?) :
-    KtLightElementBase(parent), PsiAnnotation, KtLightElement<KtCallElement, PsiAnnotation> {
+    KtLightElementBase(parent), PsiAnnotation, KtLightElementWithDelegate<KtCallElement, PsiAnnotation> {
 
     override val clsDelegate: PsiAnnotation by lazyPub {
         if (!accessAnnotationsClsDelegateIsAllowed && ApplicationManager.getApplication().isUnitTestMode && this !is KtLightNonSourceAnnotation)
@@ -252,7 +252,7 @@ class KtLightNonSourceAnnotation(
     override fun findDeclaredAttributeValue(attributeName: String?) = clsDelegate.findDeclaredAttributeValue(attributeName)
 }
 
-class KtLightNonExistentAnnotation(parent: KtLightElement<*, *>) : KtLightElementBase(parent), PsiAnnotation {
+class KtLightNonExistentAnnotation(parent: KtLightElementWithDelegate<*, *>) : KtLightElementBase(parent), PsiAnnotation {
     override val kotlinOrigin: KtElement? get() = null
     override fun toString(): String = this.javaClass.name
 
@@ -271,7 +271,7 @@ class KtLightEmptyAnnotationParameterList(parent: PsiElement) : KtLightElementBa
     override fun getAttributes(): Array<PsiNameValuePair> = emptyArray()
 }
 
-open class KtLightNullabilityAnnotation<D : KtLightElement<*, PsiModifierListOwner>>(val member: D, parent: PsiElement) :
+open class KtLightNullabilityAnnotation<D : KtLightElementWithDelegate<*, PsiModifierListOwner>>(val member: D, parent: PsiElement) :
     KtLightAbstractAnnotation(parent, lazyPub {
         // searching for last because nullability annotations are generated after backend generates source annotations
         getClsNullabilityAnnotation(member) ?: KtLightNonExistentAnnotation(member)
@@ -364,7 +364,7 @@ open class KtLightNullabilityAnnotation<D : KtLightElement<*, PsiModifierListOwn
     override fun findDeclaredAttributeValue(attributeName: String?): PsiAnnotationMemberValue? = null
 }
 
-private fun getClsNullabilityAnnotation(member: KtLightElement<*, PsiModifierListOwner>): PsiAnnotation? {
+private fun getClsNullabilityAnnotation(member: KtLightElementWithDelegate<*, PsiModifierListOwner>): PsiAnnotation? {
     if (!accessAnnotationsClsDelegateIsAllowed && ApplicationManager.getApplication().isUnitTestMode && isFromSources(member) && member.kotlinOrigin != null)
         LOG.error("nullability should be retrieved from `kotlinOrigin`")
     return member.clsDelegate.modifierList?.annotations?.findLast {

@@ -323,7 +323,7 @@ class KotlinReferencesSearcher : QueryExecutorBase<PsiReference, ReferencesSearc
                 if (kotlinOptions.acceptCompanionObjectMembers) {
                     val originLightClass = element.getStrictParentOfType<KtClass>()?.providedToLightClass()
                     if (originLightClass != null) {
-                        val lightDeclarations: List<KtLightMember<*>?> =
+                        val lightDeclarations: List<KtLightMember?> =
                             originLightClass.methods.map { it as? KtLightMethod } + originLightClass.fields.map { it as? KtLightField }
 
                         for (declaration in element.declarations) {

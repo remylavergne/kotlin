@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.kotlin.analyzer.KotlinModificationTrackerService
 import org.jetbrains.kotlin.asJava.classes.KotlinClassInnerStuffCache
 import org.jetbrains.kotlin.asJava.classes.KtLightClass
+import org.jetbrains.kotlin.asJava.classes.KtLightClassWithDelegate
 import org.jetbrains.kotlin.asJava.classes.lazyPub
 import org.jetbrains.kotlin.asJava.elements.KtLightElementBase
 import org.jetbrains.kotlin.idea.decompiler.classFile.KtClsFile
@@ -30,7 +31,7 @@ open class KtLightClassForDecompiledDeclaration(
     private val clsParent: PsiElement,
     private val file: KtClsFile,
     final override val kotlinOrigin: KtClassOrObject?
-) : KtLightElementBase(clsParent), PsiClass, KtLightClass, PsiExtensibleClass {
+) : KtLightElementBase(clsParent), PsiClass, KtLightClassWithDelegate, PsiExtensibleClass {
 
     private val myInnersCache = KotlinClassInnerStuffCache(
         myClass = this,

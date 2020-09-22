@@ -45,7 +45,7 @@ open class KtLightMethodImpl protected constructor(
     lightMemberOrigin: LightMemberOrigin?,
     containingClass: KtLightClass,
     private val dummyDelegate: PsiMethod? = null
-) : KtLightMemberImpl<PsiMethod>(computeRealDelegate, lightMemberOrigin, containingClass, dummyDelegate), KtLightMethod {
+) : KtLightMemberImpl<PsiMethod>(computeRealDelegate, lightMemberOrigin, containingClass, dummyDelegate), KtLightMethodWithDelegate {
     private val returnTypeElem by lazyPub {
         val delegateTypeElement = clsDelegate.returnTypeElement as? ClsTypeElementImpl
         delegateTypeElement?.let { ClsTypeElementImpl(this, it.canonicalText, /*ClsTypeElementImpl.VARIANCE_NONE */ 0.toChar()) }
@@ -265,7 +265,7 @@ open class KtLightMethodImpl protected constructor(
     override fun findSuperMethods(parentClass: PsiClass?) = clsDelegate.findSuperMethods(parentClass)
 }
 
-fun KtLightMethod.isTraitFakeOverride(): Boolean {
+fun KtLightMethodWithDelegate.isTraitFakeOverride(): Boolean {
     val methodOrigin = this.kotlinOrigin
     if (!(methodOrigin is KtNamedFunction || methodOrigin is KtPropertyAccessor || methodOrigin is KtProperty)) {
         return false

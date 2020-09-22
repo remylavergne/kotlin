@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 
 internal fun getTestMethodForKotlinTest(location: Location<*>): PsiMethod? {
     val leaf = when (val psi = location.psiElement) {
-        is KtLightElement<*, *> -> psi.kotlinOrigin
+        is KtLightElement<*> -> psi.kotlinOrigin
         else -> psi
     }
     val function = leaf?.getParentOfType<KtNamedFunction>(false) ?: return null
@@ -27,7 +27,7 @@ internal fun getTestMethodForKotlinTest(location: Location<*>): PsiMethod? {
 
 internal fun getTestClassForKotlinTest(location: Location<*>): PsiClass? {
     val leaf = when (val psi = location.psiElement) {
-        is KtLightElement<*, *> -> psi.kotlinOrigin
+        is KtLightElement<*> -> psi.kotlinOrigin
         else -> psi
     }
     val owner = leaf?.getParentOfType<KtDeclaration>(false) as? KtClassOrObject ?: return null

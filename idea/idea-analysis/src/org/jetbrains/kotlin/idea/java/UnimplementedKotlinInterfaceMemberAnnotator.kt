@@ -18,6 +18,7 @@ import com.intellij.psi.*
 import org.jetbrains.kotlin.asJava.KtLightClassMarker
 import org.jetbrains.kotlin.asJava.classes.KtLightClassForSourceDeclaration
 import org.jetbrains.kotlin.asJava.elements.KtLightMethod
+import org.jetbrains.kotlin.asJava.elements.KtLightMethodWithDelegate
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.load.java.structure.LightClassOriginKind
 import org.jetbrains.kotlin.resolve.annotations.JVM_STATIC_ANNOTATION_FQ_NAME
@@ -38,7 +39,7 @@ class UnimplementedKotlinInterfaceMemberAnnotator : Annotator {
 
     }
 
-    private fun findUnimplementedMethod(psiClass: PsiClass): KtLightMethod? {
+    private fun findUnimplementedMethod(psiClass: PsiClass): KtLightMethodWithDelegate? {
         val signaturesFromKotlinInterfaces = psiClass.visibleSignatures.filter { signature ->
             signature.method.let { it is KtLightMethod && it.hasModifierProperty(PsiModifier.DEFAULT) }
         }.ifEmpty { return null }
@@ -53,12 +54,12 @@ class UnimplementedKotlinInterfaceMemberAnnotator : Annotator {
                         val qualifiedName = annotation.qualifiedName
                         qualifiedName == JVM_DEFAULT_FQ_NAME.asString() || qualifiedName == JVM_STATIC_ANNOTATION_FQ_NAME.asString()
                     }
-        }?.method as? KtLightMethod
+        }?.method as? KtLightMethodWithDelegate
     }
 
     private val PsiMethod.isBinaryOrigin get() = (containingClass as? KtLightClassMarker)?.originKind == LightClassOriginKind.BINARY
 
-    private fun report(method: KtLightMethod, holder: AnnotationHolder, psiClass: PsiClass) {
+    private fun report(method: KtLightMethodWithDelegate, holder: AnnotationHolder, psiClass: PsiClass) {
         val key = if (psiClass is PsiEnumConstantInitializer) "enum.constant.should.implement.method" else "class.must.be.abstract"
         val message = JavaErrorMessages.message(
             key, HighlightUtil.formatClass(psiClass, false), JavaHighlightUtil.formatMethod(method),
