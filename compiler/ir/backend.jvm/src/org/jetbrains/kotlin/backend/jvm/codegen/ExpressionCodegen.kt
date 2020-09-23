@@ -449,23 +449,23 @@ class ExpressionCodegen(
         if (isSuspensionPoint != SuspensionPointKind.NEVER) {
             addSuspendMarker(mv, isStartNotEnd = false, isSuspensionPoint == SuspensionPointKind.NOT_INLINE)
             if (unboxedInlineClassIrType != null) {
-                generateResumePathUnboxing(mv, unboxedInlineClassIrType.toKotlinType())
+                generateResumePathUnboxing(mv, unboxedInlineClassIrType.toIrBasedKotlinType())
             }
             addInlineMarker(mv, isStartNotEnd = false)
         }
 
-        val isCallableReference = irFunction.origin != IrDeclarationOrigin.BRIDGE &&
-                irFunction.parentAsClass.origin == JvmLoweredDeclarationOrigin.FUNCTION_REFERENCE_IMPL
-
-        val isDelegateCall = irFunction.origin == IrDeclarationOrigin.DELEGATED_MEMBER
-
         if (unboxedInlineClassIrType != null) {
-            if (irFunction.isInvokeSuspendOfContinuation() || isCallableReference || isDelegateCall) {
+            val isFunctionReference = irFunction.origin != IrDeclarationOrigin.BRIDGE &&
+                    irFunction.parentAsClass.origin == JvmLoweredDeclarationOrigin.FUNCTION_REFERENCE_IMPL
+
+            val isDelegateCall = irFunction.origin == IrDeclarationOrigin.DELEGATED_MEMBER
+
+            if (irFunction.isInvokeSuspendOfContinuation() || isFunctionReference || isDelegateCall) {
                 mv.generateCoroutineSuspendedCheck(state.languageVersionSettings)
                 mv.checkcast(unboxedInlineClassIrType.asmType)
             }
             if (irFunction.isInvokeSuspendOfContinuation()) {
-                StackValue.boxInlineClass(unboxedInlineClassIrType.toKotlinType(), mv)
+                StackValue.boxInlineClass(unboxedInlineClassIrType.toIrBasedKotlinType(), mv)
             }
         }
 

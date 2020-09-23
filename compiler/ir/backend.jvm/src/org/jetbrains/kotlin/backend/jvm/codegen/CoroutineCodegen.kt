@@ -185,7 +185,7 @@ internal fun IrFunction.originalReturnTypeOfSuspendFunctionReturningUnboxedInlin
     if (!isSuspend) return null
     // Check whether we in fact return inline class
     if (returnType.classOrNull?.owner?.isInline != true) return null
-    val unboxedReturnType = returnType.underlyingType()!!
+    val unboxedReturnType = returnType.makeNotNull().unboxInlineClass()
     // Force boxing for primitives
     if (unboxedReturnType.isPrimitiveType()) return null
     // Force boxing for nullable inline class types with nullable underlying type
@@ -193,15 +193,10 @@ internal fun IrFunction.originalReturnTypeOfSuspendFunctionReturningUnboxedInlin
     // Force boxing if the function overrides function with different type modulo nullability ignoring type parameters
     if ((this as? IrSimpleFunction)?.let {
             it.overriddenSymbols.any { overridden ->
-                (overridden.owner.returnType.isNullable() && overridden.owner.returnType.underlyingType()?.isNullable() == true) ||
+                (overridden.owner.returnType.isNullable() && overridden.owner.returnType.makeNotNull().unboxInlineClass().isNullable()) ||
                         overridden.owner.returnType.makeNotNull().classOrNull != returnType.makeNotNull().classOrNull
             }
         } != false) return null
     // Don't box other inline classes
     return returnType
-}
-
-private fun IrType.underlyingType(): IrType? {
-    if (classOrNull?.owner?.isInline != true) return null
-    return InlineClassAbi.getUnderlyingType(classOrNull!!.owner).unboxInlineClass()
 }
