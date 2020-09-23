@@ -263,7 +263,7 @@ private class ScriptToClassTransformer(
         }
 
     private fun IrTypeParameter.remapSuperTypes(): IrTypeParameter = apply {
-        superTypes.replaceAll { it.remapType() }
+        superTypes = superTypes.map { it.remapType() }
     }
 
     private fun unexpectedElement(element: IrElement): Nothing =
