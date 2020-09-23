@@ -12,6 +12,7 @@ interface MetadataSource {
     val name: Name?
 
     interface File : MetadataSource
+    interface Script : MetadataSource
     interface Class : MetadataSource
     interface Function : MetadataSource
     interface Property : MetadataSource
@@ -25,6 +26,8 @@ sealed class DescriptorMetadataSource : MetadataSource {
         get() = descriptor?.name
 
     class File(val descriptors: List<DeclarationDescriptor>) : DescriptorMetadataSource(), MetadataSource.File
+
+    class Script(override val descriptor: ScriptDescriptor) : DescriptorMetadataSource(), MetadataSource.Script
 
     class Class(override val descriptor: ClassDescriptor) : DescriptorMetadataSource(), MetadataSource.Class
 
