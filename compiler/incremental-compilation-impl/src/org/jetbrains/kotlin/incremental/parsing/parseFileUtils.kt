@@ -25,16 +25,18 @@ import org.jetbrains.kotlin.psi.KtFile
 import java.io.File
 import java.util.*
 
-fun classesFqNames(files: Set<File>): Set<String> {
+fun classesFqNames(files: Set<File>, customDisposable: Disposable? = null): Set<String> {
     val existingKotlinFiles = files.filter { it.name.endsWith(".kt", ignoreCase = true) && it.isFile }
     if (existingKotlinFiles.isEmpty()) return emptySet()
 
-    val disposable = Disposer.newDisposable()
+    val disposable = customDisposable ?: Disposer.newDisposable()
 
     return try {
         classesFqNames(existingKotlinFiles, disposable)
     } finally {
-        Disposer.dispose(disposable)
+        if (customDisposable == null) {
+            Disposer.dispose(disposable)
+        }
     }
 }
 

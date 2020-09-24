@@ -137,7 +137,7 @@ class ClassesFqNamesTest : KtUsefulTestCase() {
         testKt.writeText(code)
 
         val expected = expectedClasses.sorted().joinToString("\n")
-        val actual = classesFqNames(setOf(testKt)).sorted().joinToString("\n")
+        val actual = classesFqNames(setOf(testKt), testRootDisposable).sorted().joinToString("\n")
         UsefulTestCase.assertEquals(expected, actual)
     }
 }
