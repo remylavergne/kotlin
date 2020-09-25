@@ -717,6 +717,7 @@ open class Kotlin2JsCompile : AbstractKotlinCompile<K2JSCompilerArguments>(), Ko
         }
 
         val dependencies = compileClasspath
+            .onEach { println("Hello, $it") }
             .filter { it.exists() && libraryFilter(it) }
             .map { it.canonicalPath }
 
