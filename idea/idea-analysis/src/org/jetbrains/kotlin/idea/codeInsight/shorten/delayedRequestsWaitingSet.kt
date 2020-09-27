@@ -17,6 +17,8 @@
 package org.jetbrains.kotlin.idea.codeInsight.shorten
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.invokeLater
+import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
@@ -86,36 +88,39 @@ fun addDelayedImportRequest(elementToImport: PsiElement, file: KtFile) {
 
 fun performDelayedRefactoringRequests(project: Project) {
     project.delayedRefactoringRequests?.let { requests ->
-        project.delayedRefactoringRequests = null
-        PsiDocumentManager.getInstance(project).commitAllDocuments()
-
-        val shorteningRequests = ArrayList<ShorteningRequest>()
-        val importRequests = ArrayList<ImportRequest>()
-        requests.forEach {
-            when (it) {
-                is ShorteningRequest -> shorteningRequests += it
-                is ImportRequest -> importRequests += it
+        invokeLater {
+            project.delayedRefactoringRequests = null
+            PsiDocumentManager.getInstance(project).commitAllDocuments()
+            val shorteningRequests = ArrayList<ShorteningRequest>()
+            val importRequests = ArrayList<ImportRequest>()
+            requests.forEach {
+                when (it) {
+                    is ShorteningRequest -> shorteningRequests += it
+                    is ImportRequest -> importRequests += it
+                }
             }
-        }
 
-        val elementToOptions = shorteningRequests.mapNotNull { req -> req.pointer.element?.let { it to req.options } }.toMap()
-        val elements = elementToOptions.keys
-        //TODO: this is not correct because it should not shorten deep into the elements!
-        ShortenReferences { elementToOptions[it] ?: Options.DEFAULT }.process(elements)
+            val elementToOptions = shorteningRequests.mapNotNull { req ->
+                runReadAction { req.pointer.element }?.let { it to req.options }
+            }.toMap()
+            val elements = elementToOptions.keys
+            //TODO: this is not correct because it should not shorten deep into the elements!
+            ShortenReferences { elementToOptions[it] ?: Options.DEFAULT }.process(elements)
 
-        val importInsertHelper = ImportInsertHelper.getInstance(project)
+            val importInsertHelper = ImportInsertHelper.getInstance(project)
 
-        for ((file, requestsForFile) in importRequests.groupBy { it.filePointer.element }) {
-            if (file == null) continue
+            for ((file, requestsForFile) in importRequests.groupBy { it.filePointer.element }) {
+                if (file == null) continue
 
-            for (requestForFile in requestsForFile) {
-                val elementToImport = requestForFile.elementToImportPointer.element?.unwrapped ?: continue
-                val descriptorToImport = when (elementToImport) {
-                    is KtDeclaration -> elementToImport.unsafeResolveToDescriptor(BodyResolveMode.PARTIAL)
-                    is PsiMember -> elementToImport.getJavaMemberDescriptor()
-                    else -> null
-                } ?: continue
-                importInsertHelper.importDescriptor(file, descriptorToImport)
+                for (requestForFile in requestsForFile) {
+                    val elementToImport = runReadAction { requestForFile.elementToImportPointer.element }?.unwrapped ?: continue
+                    val descriptorToImport = when (elementToImport) {
+                        is KtDeclaration -> elementToImport.unsafeResolveToDescriptor(BodyResolveMode.PARTIAL)
+                        is PsiMember -> elementToImport.getJavaMemberDescriptor()
+                        else -> null
+                    } ?: continue
+                    importInsertHelper.importDescriptor(file, descriptorToImport)
+                }
             }
         }
     }
